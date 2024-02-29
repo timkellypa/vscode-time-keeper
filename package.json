@@ -1,0 +1,59 @@
+{
+  "name": "vscode-time-keeper",
+  "displayName": "VSCode Time Keeper",
+  "description": "This extension helps you track how much time you spend on a project or work tasks",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.86.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "vscode-time-keeper.startTask",
+        "title": "VSCode TimeKeeper: Start a Task"
+      },
+      {
+        "command": "vscode-time-keeper.stopTask",
+        "title": "VSCode TimeKeeper: Stop Current Task"
+      },
+      {
+        "command": "vscode-time-keeper.generateReport",
+        "title": "VSCode TimeKeeper: Generate a Report"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.6",
+    "@types/node": "18.x",
+    "@types/vscode": "^1.86.0",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@vscode/test-cli": "^0.0.6",
+    "@vscode/test-electron": "^2.3.9",
+    "eslint": "^8.57.0",
+    "eslint-config-standard-with-typescript": "^43.0.1",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-n": "^16.6.2",
+    "eslint-plugin-promise": "^6.1.1",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.3.3",
+    "typescript-eslint": "^7.1.0",
+    "webpack": "^5.90.3",
+    "webpack-cli": "^5.1.4"
+  }
+}
