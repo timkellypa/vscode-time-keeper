@@ -1,10 +1,12 @@
 import * as vscode from 'vscode'
 
 const InputUtils = {
-  async getUserValueWithSuggestions (choices: string[], placeHolder: string = ''): Promise<string> {
+  async getUserValueWithSuggestions (choices: string[], placeHolder: string = '', ignoreFocusOut: boolean = false): Promise<string> {
     return await new Promise((resolve) => {
       const quickPick = vscode.window.createQuickPick()
       quickPick.items = choices.map(choice => ({ label: choice }))
+
+      quickPick.ignoreFocusOut = ignoreFocusOut
 
       quickPick.title = placeHolder
 

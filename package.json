@@ -9,7 +9,9 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
@@ -25,7 +27,44 @@
         "command": "vscode-time-keeper.generateReport",
         "title": "VSCode TimeKeeper: Generate a Report"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "VSCode TimeKeeper",
+      "properties": {
+        "TimeKeeper.ProjectTasks": {
+          "type": "object",
+          "propertyNames": [
+            "Project",
+            "Tasks"
+          ],
+          "default": {},
+          "additionalProperties": {
+            "type": "string"
+          },
+          "required": [],
+          "markdownDescription": "..."
+        },
+        "TimeKeeper.TimeInterval": {
+          "type": "number",
+          "default": 15,
+          "required": true,
+          "markdownDescription": "The granularity to use for times.  All times entered will round to the nearest interval.",
+          "enum": [
+            1,
+            5,
+            10,
+            15,
+            20,
+            30
+          ]
+        },
+        "TimeKeeper.AddNotes": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "This allows you to add additional notes for your tasks when tracking time.  The notes are excluded by the task grouping that occurs for reports."
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",

@@ -2,18 +2,9 @@ import * as vscode from 'vscode'
 import fs from 'fs'
 import InputUtils from './ui/InputUtils'
 
-const projectOptions = [
-  'Project 1',
-  'Project 2',
-  'Project 3'
-]
-const taskOptions = [
-  'Development',
-  'Unit Tests',
-  'Meetings'
-]
-
-const interval = 15
+const defaultInterval = 15
+const defaultProjectTaskList = {}
+const defaultAddNotes = true
 
 const padNumber = (num: number, places: number): string => {
   let strNum = num.toString()
@@ -26,6 +17,18 @@ const fileFormat = 'utf-8'
 
 class TaskTimer {
   context: vscode.ExtensionContext
+
+  get interval (): number {
+    return vscode.workspace.getConfiguration('TimeKeeper').get('TimeInterval') ?? defaultInterval
+  }
+
+  get projectTaskList (): Record<string, string> {
+    return vscode.workspace.getConfiguration('TimeKeeper').get('ProjectTasks') ?? defaultProjectTaskList
+  }
+
+  get canAddNotes (): boolean {
+    return vscode.workspace.getConfiguration('TimeKeeper').get('AddNotes') ?? defaultAddNotes
+  }
 
   constructor (vscodeContext: vscode.ExtensionContext) {
     this.context = vscodeContext
@@ -64,13 +67,13 @@ class TaskTimer {
 
     // start with current hour, find closest absolute value difference
     for (let h = currentTimeParts[0]; h <= currentTimeParts[0] + 1; ++h) {
-      for (let m = 0; m < 60; m += interval) {
+      for (let m = 0; m < 60; m += this.interval) {
         const oldDiff = absDifference
         absDifference = Math.abs(currentMinuteTotal - (h * 60 + m))
 
         // When absolute value decreases, we've found the closest value, the previous once
-        if (oldDiff !== null && oldDiff <= absDifference) {
-          return `${padNumber(h, 2)}:${padNumber(m - interval, 2)}`
+        if (oldDiff != null && oldDiff <= absDifference) {
+          return `${padNumber(h, 2)}:${padNumber(m - this.interval, 2)}`
         }
       }
     }
@@ -86,7 +89,7 @@ class TaskTimer {
     let times = []
 
     for (let h = 0; h < 24; ++h) {
-      for (let m = 0; m < 60; m += interval) {
+      for (let m = 0; m < 60; m += this.interval) {
         times.push(`${padNumber(h, 2)}:${padNumber(m, 2)}`)
       }
     }
@@ -102,23 +105,42 @@ class TaskTimer {
     // stop any currently running tasks with the current date and time (no user input)
     await this.stopTask(false)
 
-    const currentTime = this._getCurrentTime()
+    const projectOptions = Object.keys(this.projectTaskList).sort()
+    const project = await InputUtils.getUserValueWithSuggestions(projectOptions, 'Project Name', true)
 
-    const project = await InputUtils.getUserValueWithSuggestions(projectOptions, 'Project Name')
+    if (project == null) {
+      return
+    }
 
-    const taskName = await InputUtils.getUserValueWithSuggestions(taskOptions, 'Task Name')
+    const taskOptions = (this.projectTaskList[project] ?? '').split(',').map((taskName) => taskName.trim())
+    const taskName = await InputUtils.getUserValueWithSuggestions(taskOptions, 'Task Name', true)
+
+    if (taskName == null) {
+      return
+    }
 
     const timeOptions = this._getTimeOptions()
-    let startTime = await vscode.window.showQuickPick(timeOptions, { title: 'Start Time' })
+    const startTime = await vscode.window.showQuickPick(timeOptions, { title: 'Start Time', ignoreFocusOut: true })
 
-    if (startTime == null || startTime === '') {
-      startTime = currentTime
+    if (startTime == null) {
+      return
+    }
+
+    let fullTask = taskName
+    if (this.canAddNotes) {
+      // Allow user to escape or unfocus here and still enter time.
+      // But only add notes if user actually enters them.
+      const additionalNotes = await vscode.window.showInputBox({ placeHolder: 'Notes' })
+
+      if (additionalNotes != null && additionalNotes !== '') {
+        fullTask = `${fullTask} (${additionalNotes})`
+      }
     }
 
     const file = this._getFileByDate()
 
     const fileBefore = fs.existsSync(file) ? `${fs.readFileSync(file, fileFormat)}\n` : ''
-    const newContents = `${fileBefore}${project}\t${taskName}\t${startTime} - `
+    const newContents = `${fileBefore}${project}\t${fullTask}\t${startTime} - `
     fs.writeFileSync(file, newContents, fileFormat)
   }
 
@@ -161,12 +183,12 @@ class TaskTimer {
 
     const currentTime = this._getClosestIntervalToCurrentTime()
     const timeOptions = this._getTimeOptions()
-    let endTime = !checkUserInput
-      ? null
+    const endTime = !checkUserInput
+      ? currentTime
       : (await vscode.window.showQuickPick(timeOptions, { title: 'End Time' }))
 
-    if (endTime == null || endTime === '') {
-      endTime = currentTime
+    if (endTime == null) {
+      return
     }
 
     const newContents = `${fileContents}${endTime}`

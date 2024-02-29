@@ -30,6 +30,16 @@ export function activate (context: vscode.ExtensionContext): void {
   })
 
   context.subscriptions.push(disposable)
+
+  const settings = vscode.workspace.getConfiguration('TimeKeeper')
+  const projectTasks = settings.get('ProjectTasks')
+  if (projectTasks == null || Object.entries(projectTasks).length === 0) {
+    void settings.update('ProjectTasks', {
+      '01. Sample Project': 'Development, Tests, Unit Tests, Meetings',
+      '02. HR': 'Interviews, Timesheets',
+      '03. QA': 'Training'
+    }, vscode.ConfigurationTarget.Global)
+  }
 }
 
 // This method is called when your extension is deactivated
