@@ -1,5 +1,19 @@
 import * as vscode from 'vscode'
 import fs from 'fs'
+import InputUtils from './ui/InputUtils'
+
+const projectOptions = [
+  'Project 1',
+  'Project 2',
+  'Project 3'
+]
+const taskOptions = [
+  'Development',
+  'Unit Tests',
+  'Meetings'
+]
+
+const interval = 15
 
 const padNumber = (num: number, places: number): string => {
   let strNum = num.toString()
@@ -41,8 +55,47 @@ class TaskTimer {
     return `${padNumber(hour, 2)}:${padNumber(minute, 2)}`
   }
 
+  _getClosestIntervalToCurrentTime (): string {
+    const currentTime = this._getCurrentTime()
+    const currentTimeParts = currentTime.split(':').map((timePart) => parseInt(timePart, 10))
+    const currentMinuteTotal = currentTimeParts[0] * 60 + currentTimeParts[1]
+
+    let absDifference: number | null = null
+
+    // start with current hour, find closest absolute value difference
+    for (let h = currentTimeParts[0]; h <= currentTimeParts[0] + 1; ++h) {
+      for (let m = 0; m < 60; m += interval) {
+        const oldDiff = absDifference
+        absDifference = Math.abs(currentMinuteTotal - (h * 60 + m))
+
+        // When absolute value decreases, we've found the closest value, the previous once
+        if (oldDiff !== null && oldDiff <= absDifference) {
+          return `${padNumber(h, 2)}:${padNumber(m - interval, 2)}`
+        }
+      }
+    }
+
+    throw new Error(`Unexpected State:  Closest Current Interval not found!  Current Time=${currentTime}`)
+  }
+
   _taskIsOpen (fileContents: string): boolean {
     return fileContents.endsWith('- ')
+  }
+
+  _getTimeOptions (): string[] {
+    let times = []
+
+    for (let h = 0; h < 24; ++h) {
+      for (let m = 0; m < 60; m += interval) {
+        times.push(`${padNumber(h, 2)}:${padNumber(m, 2)}`)
+      }
+    }
+
+    // Put the current time first, so it is the first thing a user can select.
+    const currentTime = this._getClosestIntervalToCurrentTime()
+    const endOfArray = times.splice(0, times.indexOf(currentTime))
+    times = times.concat(endOfArray)
+    return times
   }
 
   async startTask (): Promise<void> {
@@ -51,19 +104,12 @@ class TaskTimer {
 
     const currentTime = this._getCurrentTime()
 
-    const project = await vscode.window.showInputBox({
-      placeHolder: 'Project Name',
-      prompt: ''
-    })
-    const taskName = await vscode.window.showInputBox({
-      placeHolder: 'Task Name',
-      prompt: ''
-    })
-    let startTime =
-      (await vscode.window.showInputBox({
-        placeHolder: 'Start Time',
-        prompt: `Start Time, <enter> for now (${currentTime})`
-      }))
+    const project = await InputUtils.getUserValueWithSuggestions(projectOptions, 'Project Name')
+
+    const taskName = await InputUtils.getUserValueWithSuggestions(taskOptions, 'Task Name')
+
+    const timeOptions = this._getTimeOptions()
+    let startTime = await vscode.window.showQuickPick(timeOptions, { title: 'Start Time' })
 
     if (startTime == null || startTime === '') {
       startTime = currentTime
@@ -113,13 +159,11 @@ class TaskTimer {
       fs.writeFileSync(file, fileContents, fileFormat)
     }
 
-    const currentTime = this._getCurrentTime()
+    const currentTime = this._getClosestIntervalToCurrentTime()
+    const timeOptions = this._getTimeOptions()
     let endTime = !checkUserInput
       ? null
-      : (await vscode.window.showInputBox({
-          placeHolder: 'Start Time',
-          prompt: `Start Time, <enter> for now (${currentTime})`
-        }))
+      : (await vscode.window.showQuickPick(timeOptions, { title: 'End Time' }))
 
     if (endTime == null || endTime === '') {
       endTime = currentTime
