@@ -24,8 +24,8 @@
         "title": "VSCode TimeKeeper: Stop Current Task"
       },
       {
-        "command": "vscode-time-keeper.generateReport",
-        "title": "VSCode TimeKeeper: Generate a Report"
+        "command": "vscode-time-keeper.generateWeeklyReport",
+        "title": "VSCode TimeKeeper: Generate Weekly Report"
       }
     ],
     "configuration": {

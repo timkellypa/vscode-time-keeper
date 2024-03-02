@@ -25,8 +25,9 @@ export function activate (context: vscode.ExtensionContext): void {
 
   context.subscriptions.push(disposable)
 
-  disposable = vscode.commands.registerCommand('vscode-time-keeper.generateReport', () => {
-
+  disposable = vscode.commands.registerCommand('vscode-time-keeper.generateWeeklyReport', () => {
+    const timer = new TaskTimer(context)
+    void timer.generateWeeklyReport()
   })
 
   context.subscriptions.push(disposable)
