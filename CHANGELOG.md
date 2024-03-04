@@ -2,8 +2,9 @@
 
 All notable changes to the "vscode-time-keeper" extension will be documented in this file.
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+## 1.0.0
 
-## [Unreleased]
-
-- Initial release
+- Initial release of VSCode Time Keeper
+    * Contains commands to start/stop tasks
+    * Contains a command to generate a weekly report (timesheet).
+    * Contains options to define projects/tasks, custom note support, and the ability to change the granularity of times to allow.

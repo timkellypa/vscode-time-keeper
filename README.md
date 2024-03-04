@@ -1,71 +1,65 @@
-# vscode-time-keeper README
+# VSCode Time Keeper
 
-This is the README for your extension "vscode-time-keeper". After writing up a brief description, we recommend including the following sections.
+This is a Visual Studio Code extension that allows you to track your time across projects and generate weekly timesheet reports.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+1. Start tracking time for a project
+![Start Task](demo-images/TimeKeeper-start-task.gif)
 
-For example if there is an image subfolder under your extension project workspace:
+2. Stop tracking time for a project
+![Stop Task](demo-images/TimeKeeper-stop-task.gif)
 
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+3. Generate a weekly report
+![Generate Weekly Report](demo-images/TimeKeeper-report.png)
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+You should have a system application for viewing CSV files.  The link for the report will just open the CSV on your system.
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
 This extension contributes the following settings:
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+* `TimeKeeper.ProjectTasks`: A dictionary containing a project name as a key and a comma separated list of possible tasks as a value.  Keys should be numbered, with the most used ones on top, since they will appear in alphabetical order and default to the first one.
+* `TimeKeeper.TimeInterval`: The granularity to use for times.  All times entered will round to the nearest interval.
+* `TimeKeeper.AddNotes`: When enabled, there is an additional text prompt when starting a task that adds notes.
+Notes are not used when compiling the reports, but are there in the raw files for reference.
 
-## Known Issues
+## Tips
+After starting or stopping a task, the dialog will contain a link to the text file.  However, it may be helpful to create a symlink to the directory containing the times.  When editing one, copy its folder from VSCode, and do the following:
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+```bash
+cd ~/Documents
+ln -s <folder name you copied> timelogs
+```
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
-
 ### 1.0.0
 
-Initial release of ...
+Initial release of VSCode Time Keeper
 
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+* Contains commands to start/stop tasks
+* Contains a command to generate a weekly report (timesheet).
+* Contains options to define projects/tasks, custom note support, and the ability to change the granularity of times to allow.
 
 ---
 
-## Following extension guidelines
+## Contributing
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+Please feel free to fork this project and submit pull requests to the repository.
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+### Install with npm
 
-## Working with Markdown
+```bash
+npm install
+```
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+### Build your feature/bug fix
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+Build your feature.  All commands are defined in package.json and registered extensions.ts.
 
-## For more information
+### Submit a pull request
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+Submit a request to master on the main project, and I'll take a look at it.

@@ -2,7 +2,10 @@
   "name": "vscode-time-keeper",
   "displayName": "VSCode Time Keeper",
   "description": "This extension helps you track how much time you spend on a project or work tasks",
-  "version": "0.0.1",
+  "repository": {
+    "url": "https://github.com/timkellypa/vscode-time-keeper"
+  },
+  "version": "1.0.0",
   "engines": {
     "vscode": "^1.86.0"
   },
@@ -42,7 +45,7 @@
             "type": "string"
           },
           "required": [],
-          "markdownDescription": "..."
+          "markdownDescription": "A dictionary containing a project name as a key and a comma separated list of possible tasks as a value.  Keys should be numbered, with the most used ones on top, since they will appear in alphabetical order and default to the first one."
         },
         "TimeKeeper.TimeInterval": {
           "type": "number",
@@ -75,7 +78,8 @@
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "vscode-test"
+    "test": "vscode-test",
+    "publish": "vsce package"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.6",
@@ -84,6 +88,7 @@
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@vscode/test-cli": "^0.0.6",
     "@vscode/test-electron": "^2.3.9",
+    "@vscode/vsce": "^2.24.0",
     "eslint": "^8.57.0",
     "eslint-config-standard-with-typescript": "^43.0.1",
     "eslint-plugin-import": "^2.29.1",
