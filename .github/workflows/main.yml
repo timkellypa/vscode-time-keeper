@@ -28,6 +28,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TWK_TOKEN }}
         with:
           asset_content_type: "text/plain"
-          asset_name: "${{ steps.package.outputs.packagePath }}"
+          asset_name: "${{ steps.package.outputs.packagePath.split('/')[steps.package.outputs.packagePath.split('/').length - 1] }}"
           asset_path: "${{ steps.package.outputs.packagePath }}"
           upload_url: ${{ steps.release.outputs.upload_url }}
