@@ -24,7 +24,7 @@ jobs:
         id: release
       - name: "Get asset file name"
         id: asset_file_name
-        run: echo "::set-output name=asset_name::$(base ${{ steps.package.outputs.packagePath }})"
+        run: echo "::set-output name=asset_name::$(basename ${{ steps.package.outputs.packagePath }})"
       - name: "Upload VSIX"
         uses: "actions/upload-release-asset@v1"
         env:
