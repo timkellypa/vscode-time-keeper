@@ -22,12 +22,15 @@ jobs:
       - name: "Get upload_url"
         run: echo "::set-output name=upload_url::https://uploads.github.com/repos/$GITHUB_REPOSITORY/releases/$(jq --raw-output '.release.id' $GITHUB_EVENT_PATH)/assets{?name,label}"  
         id: release
+      - name: "Get asset file name"
+        id: asset_file_name
+        run: echo "::set-output name=asset_name::$(base ${{ steps.package.outputs.packagePath }})"
       - name: "Upload VSIX"
         uses: "actions/upload-release-asset@v1"
         env:
           GITHUB_TOKEN: ${{ secrets.TWK_TOKEN }}
         with:
           asset_content_type: "text/plain"
-          asset_name: "${{ steps.package.outputs.packagePath.split('/')[steps.package.outputs.packagePath.split('/').length - 1] }}"
+          asset_name: "${{ steps.asset_file_name.outputs.asset_name }}"
           asset_path: "${{ steps.package.outputs.packagePath }}"
           upload_url: ${{ steps.release.outputs.upload_url }}
