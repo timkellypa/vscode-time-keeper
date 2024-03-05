@@ -10,7 +10,10 @@ This is a Visual Studio Code extension that allows you to track your time across
 2. Stop tracking time for a project
 ![Stop Task](demo-images/TimeKeeper-stop-task.gif)
 
-3. Generate a weekly report
+3. Manually edit a daily time log
+![Edit Time Log](demo-images/TimeKeeper-edit-log.gif)
+
+4. Generate a weekly report
 ![Generate Weekly Report](demo-images/TimeKeeper-report.png)
 
 ## Requirements
@@ -26,14 +29,6 @@ This extension contributes the following settings:
 * `TimeKeeper.AddNotes`: When enabled, there is an additional text prompt when starting a task that adds notes.
 Notes are not used when compiling the reports, but are there in the raw files for reference.
 
-## Tips
-After starting or stopping a task, the dialog will contain a link to the text file.  However, it may be helpful to create a symlink to the directory containing the times.  When editing one, copy its folder from VSCode, and do the following:
-
-```bash
-cd ~/Documents
-ln -s <folder name you copied> timelogs
-```
-
 ## Release Notes
 
 ### 1.0.0
@@ -43,6 +38,10 @@ Initial release of VSCode Time Keeper
 * Contains commands to start/stop tasks
 * Contains a command to generate a weekly report (timesheet).
 * Contains options to define projects/tasks, custom note support, and the ability to change the granularity of times to allow.
+
+### 1.0.1
+
+Add `Edit Time Log` function to open a daily time log for manual editing.
 
 ---
 

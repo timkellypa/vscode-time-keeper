@@ -32,6 +32,11 @@ export function activate (context: vscode.ExtensionContext): void {
 
   context.subscriptions.push(disposable)
 
+  disposable = vscode.commands.registerCommand('vscode-time-keeper.editTimeLog', () => {
+    const timer = new TaskTimer(context)
+    void timer.editTimeLog()
+  })
+
   const settings = vscode.workspace.getConfiguration('TimeKeeper')
   const projectTasks = settings.get('ProjectTasks')
   if (projectTasks == null || Object.entries(projectTasks).length === 0) {

@@ -75,6 +75,10 @@ class TaskTimer {
     return `${date.getFullYear()}-${padNumber(date.getMonth() + 1, 2)}-${padNumber(date.getDate(), 2)}`
   }
 
+  _isValidDate (date: Date): boolean {
+    return !isNaN(date.getTime())
+  }
+
   _formatDuration (minutes: number, blankIfZero: boolean = false): string {
     if (minutes === 0 && blankIfZero) {
       return ''
@@ -88,6 +92,24 @@ class TaskTimer {
     const dtFile = `${this._getTimesheetRootPath()}/${dtString}.txt`
 
     return dtFile
+  }
+
+  _getDateFromFormat (dateString: string): Date | null {
+    const dateParts = dateString.split('-')
+
+    if (dateParts.length < 3) {
+      return null
+    }
+
+    return new Date(parseInt(dateParts[0], 10), parseInt(dateParts[1], 10) - 1, parseInt(dateParts[2], 10))
+  }
+
+  _getDateFromFile (fileName: string): Date | null {
+    const filePathParts = fileName.split('/')
+    const fileOnly = filePathParts[filePathParts.length - 1]
+    const dateString = fileOnly.split('.')[0]
+
+    return this._getDateFromFormat(dateString)
   }
 
   _getReportFileByDate (date = new Date()): string {
@@ -406,6 +428,40 @@ class TaskTimer {
 
     if (selection === 'Open File') {
       void vscode.env.openExternal(csvUri)
+    }
+  }
+
+  async editTimeLog (): Promise<void> {
+    const folder = this._getTimesheetRootPath()
+    const files = fs.readdirSync(folder, { recursive: false, encoding: fileFormat })
+    const sortedDateStrings: string[] = []
+
+    files.forEach((file) => {
+      if (fs.lstatSync(`${folder}/${file}`).isDirectory()) {
+        return
+      }
+
+      // check to make sure file is formatted like one of our dates
+      const fileDate = this._getDateFromFile(file)
+      if (fileDate == null || !this._isValidDate(fileDate)) {
+        return
+      }
+
+      sortedDateStrings.push(this._formatDate(fileDate))
+    })
+
+    // sort filename strings in reverse order.  This should show today first, and then count down
+    sortedDateStrings.sort((a, b) => b.localeCompare(a))
+
+    const dateString = await vscode.window.showQuickPick(sortedDateStrings, { ignoreFocusOut: true, placeHolder: 'Date of Time Log' })
+
+    if (dateString != null && dateString !== '') {
+      const date = this._getDateFromFormat(dateString)
+      if (date == null) {
+        void vscode.window.showErrorMessage(`File could not be opened! Not a proper date string: ${dateString}`)
+        return
+      }
+      void vscode.window.showTextDocument(vscode.Uri.file(this._getFileByDate(date)))
     }
   }
 }
