@@ -1,4 +1,3 @@
-import type * as vscode from 'vscode'
 import { formatDate } from '../utils/date-utils'
 import fs from 'fs'
 import BaseFile from './base-file'
@@ -7,14 +6,14 @@ import { settings } from '../settings'
 class TimeLogFile extends BaseFile {
   date: Date
 
-  constructor (context: vscode.ExtensionContext, date: Date = new Date()) {
-    super(context)
+  constructor (rootFilePath: string, date: Date = new Date()) {
+    super(rootFilePath)
     this.date = date
   }
 
   getPath (): string {
     const dtString = formatDate(this.date)
-    const dtFile = `${TimeLogFile.getDirectory(this.context)}/${dtString}.txt`
+    const dtFile = `${TimeLogFile.getDirectory(this.rootFilePath)}/${dtString}.txt`
 
     return dtFile
   }
@@ -24,7 +23,7 @@ class TimeLogFile extends BaseFile {
     return fileContents.endsWith('- ')
   }
 
-  static fromDateString (context: vscode.ExtensionContext, dateString: string): TimeLogFile | null {
+  static fromDateString (rootFilePath: string, dateString: string): TimeLogFile | null {
     const dateParts = dateString.split('-')
 
     if (dateParts.length < 3) {
@@ -33,25 +32,24 @@ class TimeLogFile extends BaseFile {
 
     const date = new Date(parseInt(dateParts[0], 10), parseInt(dateParts[1], 10) - 1, parseInt(dateParts[2], 10))
 
-    return new TimeLogFile(context, date)
+    return new TimeLogFile(rootFilePath, date)
   }
 
-  static fromFilePath (context: vscode.ExtensionContext, filePathOrName: string): TimeLogFile | null {
+  static fromFilePath (rootFilePath: string, filePathOrName: string): TimeLogFile | null {
     const filePathParts = filePathOrName.split('/')
     const fileOnly = filePathParts[filePathParts.length - 1]
     const dateString = fileOnly.split('.')[0]
 
-    return TimeLogFile.fromDateString(context, dateString)
+    return TimeLogFile.fromDateString(rootFilePath, dateString)
   }
 
   /**
    * Get the path containing the time logs
-   * @param context VSCode extension context
+   * @param rootFilePath root file path
    * @returns the path containing the time logs
    */
-  static getDirectory (context: vscode.ExtensionContext): string {
-    const storageDirectory = context.globalStorageUri.fsPath
-    const rootDirectory = `${storageDirectory}/timesheets`
+  static getDirectory (rootFilePath: string): string {
+    const rootDirectory = `${rootFilePath}/timesheets`
 
     if (!fs.existsSync(rootDirectory)) {
       fs.mkdirSync(rootDirectory, { recursive: true })
@@ -60,10 +58,10 @@ class TimeLogFile extends BaseFile {
     return rootDirectory
   }
 
-  static list (context: vscode.ExtensionContext): TimeLogFile[] {
+  static list (rootFilePath: string): TimeLogFile[] {
     const timeLogFiles: TimeLogFile[] = []
 
-    const folder = TimeLogFile.getDirectory(context)
+    const folder = TimeLogFile.getDirectory(rootFilePath)
     const files = fs.readdirSync(folder, { recursive: false, encoding: settings.fileFormat })
 
     files.forEach((file) => {
@@ -73,7 +71,7 @@ class TimeLogFile extends BaseFile {
       }
 
       // check to make sure file is formatted like one of our dates
-      const timeLogFile = TimeLogFile.fromFilePath(context, fullPath)
+      const timeLogFile = TimeLogFile.fromFilePath(rootFilePath, fullPath)
       if (timeLogFile == null || !timeLogFile.exists()) {
         return
       }

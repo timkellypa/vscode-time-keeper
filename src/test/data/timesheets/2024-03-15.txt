@@ -1,0 +1,6 @@
+01. Project 1	Development	08:00 - 10:30
+04. Project 4	Testing	10:30 - 12:45
+02. Project 2	Meetings	13:30 - 14:15
+01. Project 1	Development	14:15 - 16:00
+01. Project 1	Testing	16:00 - 16:30
+02. Project 2	Meetings	16:30 - 17:30

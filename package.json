@@ -35,6 +35,11 @@
         "title": "TimeKeeper: Edit Time Log"
       }
     ],
+    "configurationDefaults": {
+      "[plaintext]": {
+        "editor.insertSpaces": false
+      }
+    },
     "configuration": {
       "title": "VSCode TimeKeeper",
       "properties": {
@@ -78,14 +83,36 @@
     "compile": "webpack",
     "watch": "webpack --watch",
     "package": "webpack --mode production --devtool hidden-source-map",
-    "compile-tests": "tsc -p . --outDir out",
-    "watch-tests": "tsc -p . -w --outDir out",
+    "clean": "rimraf out/ && rimraf coverage/",
+    "copy-test-data": "copyfiles -u 1 src/test/data/**/*.csv src/test/data/**/*.txt out/",
+    "compile-tests": "npm run clean && tsc -p . --outDir out && npm run copy-test-data",
+    "watch-tests": "npm run clean && tsc -p . -w --outDir out && npm run copy-test-data",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "vscode-test",
+    "test": "vscode-test --coverage --coverage-output ./coverage --coverage-reporter cobertura --coverage-reporter text",
     "publish": "vsce package"
   },
+  "nyc": {
+    "extends": "@istanbuljs/nyc-config-typescript",
+    "check-coverage": true,
+    "all": true,
+    "include": [
+      "out/**/!(*.test.*).[tj]s?(x)"
+    ],
+    "exclude": [
+      "out/test/**/*.*"
+    ],
+    "reporter": [
+      "html",
+      "lcov",
+      "text",
+      "text-summary"
+    ],
+    "report-dir": "coverage"
+  },
   "devDependencies": {
+    "@types/chai": "^4.3.12",
+    "@types/chai-spies": "^1.0.6",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
     "@types/vscode": "^1.86.0",
@@ -93,11 +120,15 @@
     "@vscode/test-cli": "^0.0.6",
     "@vscode/test-electron": "^2.3.9",
     "@vscode/vsce": "^2.24.0",
+    "chai": "^4.4.1",
+    "chai-spies": "^1.1.0",
+    "copyfiles": "^2.4.1",
     "eslint": "^8.57.0",
     "eslint-config-standard-with-typescript": "^43.0.1",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-n": "^16.6.2",
     "eslint-plugin-promise": "^6.1.1",
+    "rimraf": "^5.0.5",
     "ts-loader": "^9.5.1",
     "typescript": "^5.3.3",
     "typescript-eslint": "^7.1.0",

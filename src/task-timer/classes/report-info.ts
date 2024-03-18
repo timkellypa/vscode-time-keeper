@@ -1,12 +1,11 @@
-import type * as vscode from 'vscode'
 import { formatDate, formatDuration, getDay1, getMinutesForTime } from '../utils/date-utils'
 import TimeLogFile from '../file/timelog-file'
 
 class ReportInfo {
-  context: vscode.ExtensionContext
+  rootFilePath: string
   date: Date
-  constructor (context: vscode.ExtensionContext, date: Date) {
-    this.context = context
+  constructor (rootFilePath: string, date: Date) {
+    this.rootFilePath = rootFilePath
     this.date = new Date(date)
   }
 
@@ -16,7 +15,7 @@ class ReportInfo {
     const totals: Record<string, number[]> = {}
 
     for (let i = 0; i < 7; ++i) {
-      const file = new TimeLogFile(this.context, dt)
+      const file = new TimeLogFile(this.rootFilePath, dt)
 
       const fileContents = file.getContents()
 
@@ -35,7 +34,7 @@ class ReportInfo {
         }
 
         const project = lineParts[0]
-        const task = lineParts[1].replace(/\(.*\)/, '')
+        const task = lineParts[1].replace(/\s*\(.*\)/, '')
 
         const timeParts = lineParts[2].split(' - ')
 
@@ -75,7 +74,7 @@ class ReportInfo {
     const dailyTotals: number[] = new Array(7).fill(0)
     let overallTotal = 0
 
-    const contentRows = Object.keys(weeklyData).map((key) => {
+    const contentRows = Object.keys(weeklyData).sort().map((key) => {
       let rowTotal = 0
       const row = weeklyData[key]
 

@@ -6,10 +6,10 @@ import TimeLogFile from './file/timelog-file'
 import ReportFile from './file/report-file'
 
 class TaskTimer {
-  context: vscode.ExtensionContext
+  rootFilePath: string
 
-  constructor (vscodeContext: vscode.ExtensionContext) {
-    this.context = vscodeContext
+  constructor (rootFilePath: string) {
+    this.rootFilePath = rootFilePath
   }
 
   async startTask (): Promise<void> {
@@ -48,7 +48,7 @@ class TaskTimer {
       }
     }
 
-    const file = new TimeLogFile(this.context)
+    const file = new TimeLogFile(this.rootFilePath)
 
     const fileBefore = file.exists() ? `${file.getContents()}\n` : ''
     const newContents = `${fileBefore}${project}\t${fullTask}\t${startTime} - `
@@ -64,12 +64,12 @@ class TaskTimer {
 
   async stopTask (checkUserInput: boolean = true): Promise<void> {
     // check to see if a task is open.
-    let file = new TimeLogFile(this.context)
+    let file = new TimeLogFile(this.rootFilePath)
     let isYesterday = false
     if (!file.exists()) {
       const yesterday = new Date()
       yesterday.setDate(yesterday.getDate() - 1)
-      file = new TimeLogFile(this.context, yesterday)
+      file = new TimeLogFile(this.rootFilePath, yesterday)
       isYesterday = true
     }
 
@@ -97,7 +97,7 @@ class TaskTimer {
 
       const todayOpenTaskRow = `${lastRowWithoutTimes}\t00:00 - `
 
-      file = new TimeLogFile(this.context)
+      file = new TimeLogFile(this.rootFilePath)
       fileContents = todayOpenTaskRow
       file.write(fileContents)
     }
@@ -146,7 +146,7 @@ class TaskTimer {
       return
     }
 
-    const file = new ReportFile(this.context, dtSelected)
+    const file = new ReportFile(this.rootFilePath, dtSelected)
     file.writeInfo()
 
     const message = new vscode.MarkdownString('CSV File generated successfully')
@@ -159,7 +159,7 @@ class TaskTimer {
   }
 
   async editTimeLog (): Promise<void> {
-    const files = TimeLogFile.list(this.context)
+    const files = TimeLogFile.list(this.rootFilePath)
     const sortedDateStrings: string[] = []
 
     files.forEach((file) => {
@@ -172,7 +172,7 @@ class TaskTimer {
     const dateString = await vscode.window.showQuickPick(sortedDateStrings, { ignoreFocusOut: true, placeHolder: 'Date of Time Log' })
 
     if (dateString != null && dateString !== '') {
-      const timelogFile = TimeLogFile.fromDateString(this.context, dateString)
+      const timelogFile = TimeLogFile.fromDateString(this.rootFilePath, dateString)
       if (timelogFile == null) {
         void vscode.window.showErrorMessage(`File could not be opened! File does not exist or selection is not a proper date string: ${dateString}`)
         return

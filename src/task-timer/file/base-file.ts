@@ -3,9 +3,9 @@ import fs from 'fs'
 import { settings } from '../settings'
 
 class BaseFile {
-  context: vscode.ExtensionContext
-  constructor (context: vscode.ExtensionContext) {
-    this.context = context
+  rootFilePath: string
+  constructor (rootFilePath: string) {
+    this.rootFilePath = rootFilePath
   }
 
   /**

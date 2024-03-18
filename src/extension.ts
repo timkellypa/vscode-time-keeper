@@ -8,32 +8,34 @@ import TaskTimer from './task-timer/task-timer'
 export function activate (context: vscode.ExtensionContext): void {
   console.log('Congratulations, your extension "vscode-time-keeper" is now active!')
 
+  const rootFilePath = context.globalStorageUri.fsPath
+
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with registerCommand
   // The commandId parameter must match the command field in package.json
   let disposable = vscode.commands.registerCommand('vscode-time-keeper.startTask', () => {
-    const timer = new TaskTimer(context)
+    const timer = new TaskTimer(rootFilePath)
     void timer.startTask()
   })
 
   context.subscriptions.push(disposable)
 
   disposable = vscode.commands.registerCommand('vscode-time-keeper.stopTask', () => {
-    const timer = new TaskTimer(context)
+    const timer = new TaskTimer(rootFilePath)
     void timer.stopTask()
   })
 
   context.subscriptions.push(disposable)
 
   disposable = vscode.commands.registerCommand('vscode-time-keeper.generateWeeklyReport', () => {
-    const timer = new TaskTimer(context)
+    const timer = new TaskTimer(rootFilePath)
     void timer.generateWeeklyReport()
   })
 
   context.subscriptions.push(disposable)
 
   disposable = vscode.commands.registerCommand('vscode-time-keeper.editTimeLog', () => {
-    const timer = new TaskTimer(context)
+    const timer = new TaskTimer(rootFilePath)
     void timer.editTimeLog()
   })
 
