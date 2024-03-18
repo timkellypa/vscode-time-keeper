@@ -36,32 +36,3 @@ jobs:
           asset_name: "${{ steps.asset_file_name.outputs.asset_name }}"
           asset_path: "${{ steps.package.outputs.packagePath }}"
           upload_url: ${{ steps.release.outputs.upload_url }}
-
-name: Validate
-on:
-  push:
-  pull_request:
-    branches: [ master ]
-jobs:
-  test:
-    runs-on: ${{ fromJSON('["ubuntu-latest", "self-hosted"]')[github.repository == 'github/docs-internal'] }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node }}
-      - run: npm ci
-      - run: npm test
-      - name: Code Coverage Report
-        uses: irongut/CodeCoverageSummary@v1.3.0
-        with:
-          filename: coverage/**/coverage.cobertura.xml
-          badge: true
-          fail_below_min: true
-          format: markdown
-          hide_branch_rate: false
-          hide_complexity: true
-          indicators: true
-          output: both
-          thresholds: '60 80'
