@@ -92,24 +92,6 @@
     "test": "vscode-test --coverage --coverage-output ./coverage --coverage-reporter cobertura --coverage-reporter text",
     "publish": "vsce package"
   },
-  "nyc": {
-    "extends": "@istanbuljs/nyc-config-typescript",
-    "check-coverage": true,
-    "all": true,
-    "include": [
-      "out/**/!(*.test.*).[tj]s?(x)"
-    ],
-    "exclude": [
-      "out/test/**/*.*"
-    ],
-    "reporter": [
-      "html",
-      "lcov",
-      "text",
-      "text-summary"
-    ],
-    "report-dir": "coverage"
-  },
   "devDependencies": {
     "@types/chai": "^4.3.12",
     "@types/chai-spies": "^1.0.6",
