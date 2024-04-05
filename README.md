@@ -47,6 +47,15 @@ Add `Edit Time Log` function to open a daily time log for manual editing.
 
 Add tests and minor defect fixes.
 
+### 1.0.3
+
+Start/stop usability enhancements
+  - Use more subtle status bar messaging.
+      - No link to open file, because there's a task for it.
+  - No link to open CSV, just opens externally automatically.
+  - Always add 24:00 as an option on time pickers.
+  - Show previous line in title when starting a task.
+
 ---
 
 ## Contributing

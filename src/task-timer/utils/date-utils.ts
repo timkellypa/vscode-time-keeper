@@ -121,6 +121,9 @@ export function getTimeOptions (minTime: string = '00:00'): string[] {
     }
   }
 
+  // always allow 24:00
+  times.push('24:00')
+
   // Put the current time first, so it is the first thing a user can select.
   const currentTime = getClosestIntervalToCurrentTime()
   const endOfArray = times.splice(0, times.indexOf(currentTime))

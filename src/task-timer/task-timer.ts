@@ -5,6 +5,8 @@ import { settings } from './settings'
 import TimeLogFile from './file/timelog-file'
 import ReportFile from './file/report-file'
 
+const statusMessageTimeout = 3000
+
 class TaskTimer {
   rootFilePath: string
 
@@ -30,8 +32,17 @@ class TaskTimer {
       return
     }
 
+    const file = new TimeLogFile(this.rootFilePath)
+    const fileContents = file.getContents()
+    let lastLine = ''
+
+    if (fileContents !== null) {
+      const lines = fileContents.split('\n')
+      lastLine = lines[lines.length - 1]
+    }
+
     const timeOptions = getTimeOptions()
-    const startTime = await vscode.window.showQuickPick(timeOptions, { title: 'Start Time', ignoreFocusOut: true })
+    const startTime = await vscode.window.showQuickPick(timeOptions, { placeHolder: 'Start Time', title: lastLine, ignoreFocusOut: true })
 
     if (startTime == null) {
       return
@@ -41,25 +52,19 @@ class TaskTimer {
     if (settings.canAddNotes) {
       // Allow user to escape or unfocus here and still enter time.
       // But only add notes if user actually enters them.
-      const additionalNotes = await vscode.window.showInputBox({ placeHolder: 'Notes' })
+      const additionalNotes = await vscode.window.showInputBox({ placeHolder: 'Notes', ignoreFocusOut: true })
 
       if (additionalNotes != null && additionalNotes !== '') {
         fullTask = `${fullTask} (${additionalNotes})`
       }
     }
 
-    const file = new TimeLogFile(this.rootFilePath)
-
     const fileBefore = file.exists() ? `${file.getContents()}\n` : ''
-    const newContents = `${fileBefore}${project}\t${fullTask}\t${startTime} - `
+    const currentLine = `${project}\t${fullTask}\t${startTime} - `
+    const newContents = `${fileBefore}${currentLine}`
     file.write(newContents)
 
-    void vscode.window.showInformationMessage('Task Started', { detail: newContents }, 'OK', 'Edit Manually')
-      .then((selection) => {
-        if (selection === 'Edit Manually') {
-          void vscode.window.showTextDocument(file.getUri())
-        }
-      })
+    vscode.window.setStatusBarMessage(`Task Started: ${currentLine}`, statusMessageTimeout)
   }
 
   async stopTask (checkUserInput: boolean = true): Promise<void> {
@@ -124,12 +129,7 @@ class TaskTimer {
 
     const newContentsLines = newContents.split('\n')
     const stoppedTaskInfo = newContentsLines[newContentsLines.length - 1]
-    void vscode.window.showInformationMessage('Task Stopped', { detail: stoppedTaskInfo }, 'OK', 'Edit Manually')
-      .then((selection) => {
-        if (selection === 'Edit Manually') {
-          void vscode.window.showTextDocument(file.getUri())
-        }
-      })
+    vscode.window.setStatusBarMessage(`Task Stopped: ${stoppedTaskInfo}`, statusMessageTimeout)
   }
 
   async generateWeeklyReport (): Promise<void> {
@@ -149,13 +149,7 @@ class TaskTimer {
     const file = new ReportFile(this.rootFilePath, dtSelected)
     file.writeInfo()
 
-    const message = new vscode.MarkdownString('CSV File generated successfully')
-
-    const selection = await vscode.window.showInformationMessage(message.value, 'Open File')
-
-    if (selection === 'Open File') {
-      void vscode.env.openExternal(file.getUri())
-    }
+    void vscode.env.openExternal(file.getUri())
   }
 
   async editTimeLog (): Promise<void> {
