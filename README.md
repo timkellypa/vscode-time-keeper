@@ -43,6 +43,10 @@ Initial release of VSCode Time Keeper
 
 Add `Edit Time Log` function to open a daily time log for manual editing.
 
+### 1.0.2
+
+Add tests and minor defect fixes.
+
 ---
 
 ## Contributing

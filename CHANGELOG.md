@@ -12,3 +12,7 @@ All notable changes to the "vscode-time-keeper" extension will be documented in 
 ## 1.0.1
 
 - Add `Edit Time Log` function to open a daily time log for manual editing.
+
+## 1.0.2
+
+- Add tests and minor defect fixes.
