@@ -5,7 +5,7 @@
   "repository": {
     "url": "https://github.com/timkellypa/vscode-time-keeper"
   },
-  "version": "1.0.3",
+  "version": "1.0.4",
   "engines": {
     "vscode": "^1.86.0"
   },
@@ -17,6 +17,26 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "time-keeper-sidebar-view",
+          "title": "Time Keeper",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "time-keeper-sidebar-view": [
+        {
+          "type": "webview",
+          "id": "time-keeper-sidebar",
+          "name": "TimeKeeper",
+          "icon": "media/icon.svg",
+          "contextualTitle": "TimeKeeper"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "vscode-time-keeper.startTask",
@@ -80,9 +100,9 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
-    "compile": "webpack",
-    "watch": "webpack --watch",
-    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile": "webpack --config ./build/node-extension.webpack.config.js",
+    "watch": "concurrently \"rollup -c -w\" \"webpack --watch\" --config ./build/node-extension.webpack.config.js",
+    "package": "webpack --mode production --devtool hidden-source-map --config ./build/node-extension.webpack.config.js",
     "clean": "rimraf out/ && rimraf coverage/",
     "copy-test-data": "copyfiles -u 1 src/test/data/**/*.csv src/test/data/**/*.txt out/",
     "compile-tests": "npm run clean && tsc -p . --outDir out && npm run copy-test-data",
@@ -93,10 +113,14 @@
     "publish": "vsce package"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-typescript": "^12.1.4",
+    "@tsconfig/svelte": "^5.0.4",
     "@types/chai": "^4.3.12",
     "@types/chai-spies": "^1.0.6",
     "@types/mocha": "^10.0.6",
-    "@types/node": "18.x",
+    "@types/node": "^18.19.120",
     "@types/vscode": "^1.86.0",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@vscode/test-cli": "^0.0.6",
@@ -111,7 +135,14 @@
     "eslint-plugin-n": "^16.6.2",
     "eslint-plugin-promise": "^6.1.1",
     "rimraf": "^5.0.5",
+    "rollup": "^2.79.2",
+    "rollup-plugin-svelte": "^7.2.2",
+    "rollup-plugin-terser": "^7.0.2",
+    "svelte": "^5.36.10",
+    "svelte-check": "^4.3.0",
+    "svelte-preprocess": "^6.0.3",
     "ts-loader": "^9.5.1",
+    "tslib": "^2.8.1",
     "typescript": "^5.3.3",
     "typescript-eslint": "^7.1.0",
     "webpack": "^5.90.3",

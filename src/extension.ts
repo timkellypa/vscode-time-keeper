@@ -2,6 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode'
 import TaskTimer from './task-timer/task-timer'
+import { SidebarProvider } from './providers/sidebar-provider'
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -48,6 +49,15 @@ export function activate (context: vscode.ExtensionContext): void {
       '03. QA': 'Training'
     }, vscode.ConfigurationTarget.Global)
   }
+
+  // Register the Sidebar Panel
+  const sidebarProvider = new SidebarProvider(context.extensionUri, rootFilePath)
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider(
+      'time-keeper-sidebar',
+      sidebarProvider
+    )
+  )
 }
 
 // This method is called when your extension is deactivated

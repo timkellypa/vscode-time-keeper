@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 import InputUtils from './ui/input-utils'
-import { formatDate, getClosestIntervalToCurrentTime, getTimeOptions, isValidDate } from './utils/date-utils'
+import { dateFromIsoString, formatDate, getClosestIntervalToCurrentTime, getTimeOptions, isValidDate } from './utils/date-utils'
 import { settings } from './settings'
 import TimeLogFile from './file/timelog-file'
 import ReportFile from './file/report-file'
@@ -14,25 +14,11 @@ class TaskTimer {
     this.rootFilePath = rootFilePath
   }
 
-  async startTask (): Promise<void> {
+  async startTask (date: Date = new Date()): Promise<void> {
     // stop any currently running tasks with the current date and time (no user input)
     await this.stopTask(false)
 
-    const projectOptions = Object.keys(settings.projectTaskList).sort()
-    const project = await InputUtils.getUserValueWithSuggestions(projectOptions, 'Project Name', true)
-
-    if (project == null) {
-      return
-    }
-
-    const taskOptions = (settings.projectTaskList[project] ?? '').split(',').map((taskName) => taskName.trim())
-    const taskName = await InputUtils.getUserValueWithSuggestions(taskOptions, 'Task Name', true)
-
-    if (taskName == null) {
-      return
-    }
-
-    const file = new TimeLogFile(this.rootFilePath)
+    const file = new TimeLogFile(this.rootFilePath, date)
     const fileContents = file.getContents()
     let lastLine = ''
 
@@ -41,10 +27,30 @@ class TaskTimer {
       lastLine = lines[lines.length - 1]
     }
 
-    const timeOptions = getTimeOptions()
+    const projectOptions = Object.keys(settings.projectTaskList).sort()
+    const project = await vscode.window.showQuickPick(projectOptions, { placeHolder: 'Project Name', title: lastLine, ignoreFocusOut: true })
+
+    if (project == null) {
+      return
+    }
+
+    const taskOptions = (settings.projectTaskList[project] ?? '').split(',').map((taskName) => taskName.trim())
+    const taskName = await vscode.window.showQuickPick(taskOptions, { placeHolder: 'Task Name', title: lastLine, ignoreFocusOut: true })
+
+    if (taskName == null) {
+      return
+    }
+
+    const timeOptions = getTimeOptions('00:00', { currentTimeFirst: true, includeEmpty: false })
     const startTime = await vscode.window.showQuickPick(timeOptions, { placeHolder: 'Start Time', title: lastLine, ignoreFocusOut: true })
 
     if (startTime == null) {
+      return
+    }
+
+    const endTime = await vscode.window.showQuickPick(getTimeOptions(startTime, { currentTimeFirst: true, includeEmpty: true }), { placeHolder: 'End Time <blank if ongoing>', ignoreFocusOut: true })
+
+    if (endTime == null) {
       return
     }
 
@@ -59,20 +65,21 @@ class TaskTimer {
       }
     }
 
-    const fileBefore = file.exists() ? `${file.getContents()}\n` : ''
-    const currentLine = `${project}\t${fullTask}\t${startTime} - `
+    let fileBefore = `${file.getContents()}\n`
+    if (fileBefore === '\n' || !file.exists()) {
+      fileBefore = ''
+    }
+    const currentLine = `${project}\t${fullTask}\t${startTime} - ${endTime}`
     const newContents = `${fileBefore}${currentLine}`
     file.write(newContents)
-
-    vscode.window.setStatusBarMessage(`Task Started: ${currentLine}`, statusMessageTimeout)
   }
 
-  async stopTask (checkUserInput: boolean = true): Promise<void> {
+  async stopTask (checkUserInput: boolean = true, date = new Date()): Promise<void> {
     // check to see if a task is open.
-    let file = new TimeLogFile(this.rootFilePath)
+    let file = new TimeLogFile(this.rootFilePath, date)
     let isYesterday = false
     if (!file.exists()) {
-      const yesterday = new Date()
+      const yesterday = new Date(date)
       yesterday.setDate(yesterday.getDate() - 1)
       file = new TimeLogFile(this.rootFilePath, yesterday)
       isYesterday = true
@@ -114,7 +121,7 @@ class TaskTimer {
     const lineParts = lastLine.split('\t')
     const startTime = lineParts[lineParts.length - 1].replace(' -', '')
 
-    const timeOptions = getTimeOptions(startTime)
+    const timeOptions = getTimeOptions(startTime, { currentTimeFirst: true, includeEmpty: false })
 
     const endTime = !checkUserInput
       ? currentTime
@@ -124,7 +131,7 @@ class TaskTimer {
       return
     }
 
-    const newContents = `${fileContents}${endTime}`
+    const newContents = `${fileContents.trim()} ${endTime}`
     file.write(newContents)
 
     const newContentsLines = newContents.split('\n')
@@ -132,15 +139,20 @@ class TaskTimer {
     vscode.window.setStatusBarMessage(`Task Stopped: ${stoppedTaskInfo}`, statusMessageTimeout)
   }
 
-  async generateWeeklyReport (): Promise<void> {
-    const dateOptions = [formatDate(new Date())]
-    const reportDate = await InputUtils.getUserValueWithSuggestions(dateOptions, 'Date within week of report (yyyy-dd-mm)', true)
+  async generateWeeklyReport (date?: Date): Promise<void> {
+    let reportDate: string
+    if (date != null) {
+      reportDate = formatDate(date)
+    } else {
+      const dateOptions = [formatDate(new Date())]
+      reportDate = await InputUtils.getUserValueWithSuggestions(dateOptions, 'Date within week of report (yyyy-dd-mm)', true)
+    }
 
     if (reportDate == null) {
       return
     }
 
-    const dtSelected = new Date(reportDate)
+    const dtSelected = dateFromIsoString(reportDate)
 
     if (!isValidDate(dtSelected)) {
       return
@@ -152,7 +164,19 @@ class TaskTimer {
     void vscode.env.openExternal(file.getUri())
   }
 
-  async editTimeLog (): Promise<void> {
+  async getDateContents (dateString: string): Promise<string | null> {
+    const timeLogFile = TimeLogFile.fromDateString(this.rootFilePath, dateString)
+    if (timeLogFile == null) {
+      return null
+    }
+    const contents = timeLogFile.getContents()
+    if (contents == null) {
+      return null
+    }
+    return contents
+  }
+
+  async editTimeLog (date?: Date): Promise<void> {
     const files = TimeLogFile.list(this.rootFilePath)
     const sortedDateStrings: string[] = []
 
@@ -163,7 +187,12 @@ class TaskTimer {
     // sort filename strings in reverse order.  This should show today first, and then count down
     sortedDateStrings.sort((a, b) => b.localeCompare(a))
 
-    const dateString = await vscode.window.showQuickPick(sortedDateStrings, { ignoreFocusOut: true, placeHolder: 'Date of Time Log' })
+    let dateString
+    if (date != null) {
+      dateString = formatDate(date)
+    } else {
+      dateString = await vscode.window.showQuickPick(sortedDateStrings, { ignoreFocusOut: true, placeHolder: 'Date of Time Log' })
+    }
 
     if (dateString != null && dateString !== '') {
       const timelogFile = TimeLogFile.fromDateString(this.rootFilePath, dateString)

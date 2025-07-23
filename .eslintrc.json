@@ -8,5 +8,14 @@
         "ecmaVersion": "latest",
         "sourceType": "module"
     },
-    "rules": {}
+    "rules": {},
+    "ignorePatterns": [
+        "out",
+        "dist",
+        "**/*.d.ts",
+        "rollup.config.js",
+        "webpack.config.js",
+        "media",
+        "build"
+    ]
 }

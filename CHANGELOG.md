@@ -25,3 +25,14 @@ All notable changes to the "vscode-time-keeper" extension will be documented in 
     - No link to open CSV, just opens externally automatically.
     - Always add 24:00 as an option on time pickers.
     - Show previous line in title when starting a task.
+
+## 1.0.4
+
+- Create sidebar for navigating time logs and starting tasks.
+    - Add svelte, rollup, etc.
+    - Create sidebar provider and components.
+- Minor updates to dates (were incorrectly using UTC when reformatted from strings).
+- Minor updates to task timer.
+    - Always use projects/tasks (not suggestions).
+    - Fix time interval issue causing -15 minutes.
+    - Allow date to be passed into all functions (allows date to be specified by sidebar).

@@ -19,6 +19,12 @@ export function formatDate (date: Date): string {
   return `${date.getFullYear()}-${padNumber(date.getMonth() + 1, 2)}-${padNumber(date.getDate(), 2)}`
 }
 
+export function dateFromIsoString (dateString: string): Date {
+  // Since ISO string usually indicates UTC and we want local, just pass in the date parts separately.
+  const parts = dateString.split('-')
+  return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10), 0, 0, 0, 0)
+}
+
 /**
  * Format our duration as the number of hours, with a max, 2-digit decimal to represent our minutes.
  * @param minutes number of minutes
@@ -65,6 +71,16 @@ export function getClosestIntervalToCurrentTime (): string {
 
       // When absolute value decreases, we've found the closest value, the previous once
       if (oldDiff != null && oldDiff <= absDifference) {
+        if (m === 0) {
+          h -= 1
+          m = 60
+        }
+
+        // If somehow we are below 0 after adjusting for negative minutes, return 0.
+        if (h < 0) {
+          return '00:00'
+        }
+
         return `${padNumber(h, 2)}:${padNumber(m - settings.interval, 2)}`
       }
     }
@@ -108,10 +124,15 @@ export function getDay7 (dt: Date): Date {
  * Order is sorted so that the current time is at the beginning of the list, and times prior to the current time
  * are pushed to the end of the list.
  * @param minTime the minimum time to allow in our list.
+ * @param options options containing currentTimeFirst and includeEmpty.
  * @returns an array of formatted time strings for a time selection.
  */
-export function getTimeOptions (minTime: string = '00:00'): string[] {
+export function getTimeOptions (minTime: string = '00:00', { currentTimeFirst = true, includeEmpty = false }): string[] {
   let times = []
+
+  if (includeEmpty) {
+    times.push('')
+  }
 
   for (let h = 0; h < 24; ++h) {
     for (let m = 0; m < 60; m += settings.interval) {
@@ -125,8 +146,10 @@ export function getTimeOptions (minTime: string = '00:00'): string[] {
   times.push('24:00')
 
   // Put the current time first, so it is the first thing a user can select.
-  const currentTime = getClosestIntervalToCurrentTime()
-  const endOfArray = times.splice(0, times.indexOf(currentTime))
-  times = times.concat(endOfArray)
+  if (currentTimeFirst) {
+    const currentTime = getClosestIntervalToCurrentTime()
+    const endOfArray = times.splice(includeEmpty ? 1 : 0, times.indexOf(currentTime))
+    times = times.concat(endOfArray)
+  }
   return times
 }

@@ -20,7 +20,7 @@ class TimeLogFile extends BaseFile {
 
   taskIsOpen (): boolean {
     const fileContents = this.getContents() ?? ''
-    return fileContents.endsWith('- ')
+    return fileContents.trim().endsWith('-')
   }
 
   static fromDateString (rootFilePath: string, dateString: string): TimeLogFile | null {
