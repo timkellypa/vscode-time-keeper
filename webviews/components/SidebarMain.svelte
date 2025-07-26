@@ -25,8 +25,9 @@
   onMount(() => {
     // Listen for messages from the webview
     window.addEventListener("message", (event: MessageEvent) => {
-      if (event.data.command === "pageContents") {
-        pageContents = event.data.contents;
+      if (event.data.command === "updateDailyContents") {
+        pageContents = event.data.contents ?? "";
+        hasOpenValue = pageContents ? pageContents.trim().endsWith("-") : false;
       }
     });
   });
@@ -52,21 +53,32 @@
   }
 </script>
 
-<DateSelector {dateChanged} />
+<div class="sidebar-header">
+  <DateSelector {dateChanged} />
 
-{#key hasOpenValue}
-  <ActionButtons
-    {generateWeeklyReport}
-    {editTimeLog}
-    {addTimeEntry}
-    {stopTask}
-    {hasOpenValue}
-  />
+  {#key hasOpenValue}
+    <ActionButtons
+      {generateWeeklyReport}
+      {editTimeLog}
+      {addTimeEntry}
+      {stopTask}
+      {hasOpenValue}
+    />
+  {/key}
+</div>
+
+{#key pageContents}
+  <TimeLogList {pageContents} />
 {/key}
-
-<TimeLogList {pageContents} bind:hasOpenValue />
 
 <svelte:head>
   <style>
+    .sidebar-header {
+      position: sticky;
+      top: 0;
+
+      /* set different background for dark or light mode */
+      background-color: var(--vscode-sideBar-background);
+    }
   </style>
 </svelte:head>

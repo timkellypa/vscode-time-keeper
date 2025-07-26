@@ -19,6 +19,11 @@ export function formatDate (date: Date): string {
   return `${date.getFullYear()}-${padNumber(date.getMonth() + 1, 2)}-${padNumber(date.getDate(), 2)}`
 }
 
+/**
+ * Get a Date object from an ISO date string.
+ * @param dateString ISO date string in the format YYYY-MM-DD
+ * @returns Javascript Date object representing the date in local time.
+ */
 export function dateFromIsoString (dateString: string): Date {
   // Since ISO string usually indicates UTC and we want local, just pass in the date parts separately.
   const parts = dateString.split('-')
@@ -105,7 +110,13 @@ export function getMinutesForTime (time: string): number {
  */
 export function getDay1 (dt: Date): Date {
   const returnDate = new Date(dt)
-  returnDate.setDate(returnDate.getDate() - returnDate.getDay() + settings.day1Offset)
+
+  if (returnDate.getDay() < settings.day1Offset) {
+    returnDate.setDate(returnDate.getDate() - 7 + settings.day1Offset)
+  } else {
+    returnDate.setDate(returnDate.getDate() - returnDate.getDay() + settings.day1Offset)
+  }
+
   return returnDate
 }
 
@@ -115,7 +126,8 @@ export function getDay1 (dt: Date): Date {
  */
 export function getDay7 (dt: Date): Date {
   const returnDate = new Date(dt)
-  returnDate.setDate(returnDate.getDate() - returnDate.getDay() + settings.day1Offset + 7)
+  const day1 = getDay1(returnDate)
+  returnDate.setDate(day1.getDate() + 6)
   return returnDate
 }
 

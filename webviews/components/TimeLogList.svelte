@@ -1,22 +1,7 @@
 <script lang="ts">
   import TimeLogItem from "./TimeLogItem.svelte";
 
-  let { pageContents, hasOpenValue = $bindable() } = $props();
-
-  function checkOpenValue() {
-    let openValue: boolean;
-    if (pageContents && pageContents.trim().endsWith("-")) {
-      openValue = true;
-    } else {
-      openValue = false;
-    }
-
-    if (openValue !== hasOpenValue) {
-      hasOpenValue = openValue;
-    }
-  }
-
-  $effect(() => checkOpenValue());
+  const { pageContents } = $props();
 </script>
 
 <div class="time-log-list">
@@ -33,8 +18,8 @@
     .time-log-list {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      padding: 10px;
+      gap: 5px;
+      padding: 5px;
     }
   </style>
 </svelte:head>

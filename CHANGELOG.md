@@ -36,3 +36,13 @@ All notable changes to the "vscode-time-keeper" extension will be documented in 
     - Always use projects/tasks (not suggestions).
     - Fix time interval issue causing -15 minutes.
     - Allow date to be passed into all functions (allows date to be specified by sidebar).
+
+## 1.0.5
+
+- Sidebar enhancements.
+   - Use action buttons and compressed UI to fit more tasks.
+   - Include project totals view.
+   - Track state better, and use for everything.
+- Generate report changes.
+   - Fix defect with day 1/day 7, when done on Sunday.
+   - Include new section in report for project totals.

@@ -9,12 +9,6 @@
 </script>
 
 <div class="action-buttons">
-  <button class="generate-weekly-report" onclick={generateWeeklyReport}>
-    Generate Weekly Report
-  </button>
-
-  <button class="edit-time-log" onclick={editTimeLog}> Edit Time Log </button>
-
   {#if !hasOpenValue}
     <button class="add-time-entry" onclick={addTimeEntry}>
       Add Time Entry
@@ -30,12 +24,12 @@
       display: flex;
       justify-content: space-between;
       flex-direction: column;
-      margin-top: 20px;
-      gap: 10px;
+      margin-top: 10px;
+      gap: 5px;
     }
 
     button {
-      padding: 10px;
+      padding: 8px;
       background-color: #007acc;
       color: white;
       border: none;

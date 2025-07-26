@@ -8,16 +8,19 @@
 import * as vscode from 'vscode'
 import TaskTimer from '../task-timer/task-timer'
 import { dateFromIsoString } from '../task-timer/utils/date-utils'
+import type SidebarState from '../state/sidebar-state'
 
-export class SidebarProvider implements vscode.WebviewViewProvider {
+export class SidebarMainProvider implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView
-  _calendarDate: string | null = null
 
-  get calendarDate (): Date {
-    return this._calendarDate != null ? dateFromIsoString(this._calendarDate) : new Date()
+  constructor (private readonly _extensionUri: vscode.Uri, private readonly _state: SidebarState) {
+    this._state.onDailyContentsChange((contents) => {
+      this._view?.webview.postMessage({
+        command: 'updateDailyContents',
+        contents: contents ?? ''
+      })
+    })
   }
-
-  constructor (private readonly _extensionUri: vscode.Uri, private readonly _rootFilePath: string) { }
 
   public resolveWebviewView (webviewView: vscode.WebviewView) {
     this._view = webviewView
@@ -38,56 +41,17 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     webviewView.webview.onDidReceiveMessage(async (data) => {
       switch (data.command) {
         case 'setCalendarDate': {
-          this._calendarDate = data.date
-          await this.postDateContents()
+          const calendarDate = dateFromIsoString(data.date)
+          await this._state.setCalendarDate(calendarDate)
           break
         }
         case 'addTimeEntry': {
-          const timer = new TaskTimer(this._rootFilePath)
-          await timer.startTask(this.calendarDate)
-          break
-        }
-        case 'generateWeeklyReport': {
-          const timer = new TaskTimer(this._rootFilePath)
-          await timer.generateWeeklyReport(this.calendarDate)
-          break
-        }
-        case 'editTimeLog': {
-          const timer = new TaskTimer(this._rootFilePath)
-          await timer.editTimeLog(this.calendarDate)
-          break
-        }
-        case 'stopTask': {
-          const timer = new TaskTimer(this._rootFilePath)
-          await timer.stopTask(true, this.calendarDate)
+          const timer = new TaskTimer(this._state.rootFilePath)
+          await timer.startTask(this._state.calendarDate ?? new Date())
           break
         }
       }
     })
-
-    // Watcher will tell the sidebar when files change, so we can update the contents.
-    const watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(this._rootFilePath, 'timesheets/*.txt'))
-    watcher.onDidChange(async (uri) => {
-      await this.postDateContents()
-    })
-
-    watcher.onDidCreate(async (uri) => {
-      await this.postDateContents()
-    })
-
-    watcher.onDidDelete(async (uri) => {
-      await this.postDateContents()
-    })
-  }
-
-  private async postDateContents (): Promise<void> {
-    if (this._view == null || this._calendarDate == null) {
-      return
-    }
-
-    const timer = new TaskTimer(this._rootFilePath)
-    const contents = await timer.getDateContents(this._calendarDate)
-    this._view?.webview.postMessage({ command: 'pageContents', contents })
   }
 
   public revive (panel: vscode.WebviewView) {
@@ -96,7 +60,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
   private _getHtmlForWebview (webview: vscode.Webview) {
     const scriptUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, 'out', 'compiled/sidebar.js')
+      vscode.Uri.joinPath(this._extensionUri, 'out', 'compiled/sidebar-main.js')
     )
 
     // Use a nonce to only allow a specific script to be run.
@@ -119,7 +83,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
                 </head>
             <body>
-            <div id="time-keeper-sidebar"></div>
+            <div id="time-keeper-sidebar-main"></div>
         <script nonce="${nonce}" src="${scriptUri}"></script>
       </body>
       </html>`

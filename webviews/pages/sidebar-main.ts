@@ -1,8 +1,8 @@
 /* eslint-disable no-new */
 import { mount } from 'svelte'
-import App from '../components/Sidebar.svelte'
+import App from '../components/SidebarMain.svelte'
 
-const target = document.getElementById('time-keeper-sidebar')
+const target = document.getElementById('time-keeper-sidebar-main')
 
 if (target === null) {
   throw new Error('Target element for Sidebar not found')

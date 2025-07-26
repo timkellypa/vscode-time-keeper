@@ -5,7 +5,7 @@
   "repository": {
     "url": "https://github.com/timkellypa/vscode-time-keeper"
   },
-  "version": "1.0.4",
+  "version": "1.0.5",
   "engines": {
     "vscode": "^1.86.0"
   },
@@ -22,7 +22,17 @@
         {
           "id": "time-keeper-sidebar-view",
           "title": "Time Keeper",
-          "icon": "media/icon.svg"
+          "icon": "$(calendar)",
+          "actions": [
+            {
+              "id": "time-keeper-sidebar-main",
+              "title": "Time Keeper"
+            },
+            {
+              "id": "time-keeper-summary",
+              "title": "Project Totals"
+            }
+          ]
         }
       ]
     },
@@ -30,29 +40,54 @@
       "time-keeper-sidebar-view": [
         {
           "type": "webview",
-          "id": "time-keeper-sidebar",
-          "name": "TimeKeeper",
-          "icon": "media/icon.svg",
-          "contextualTitle": "TimeKeeper"
+          "id": "time-keeper-sidebar-main",
+          "name": "Time Keeper",
+          "icon": "$(calendar)",
+          "contextualTitle": "Time Keeper"
+        },
+        {
+          "type": "webview",
+          "id": "time-keeper-summary",
+          "name": "Project Totals",
+          "icon": "$(calendar)",
+          "contextualTitle": "Project Totals"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "vscode-time-keeper.generateWeeklyReport",
+          "when": "view == time-keeper-sidebar-main",
+          "group": "navigation"
+        },
+        {
+          "command": "vscode-time-keeper.editTimeLog",
+          "when": "view == time-keeper-sidebar-main",
+          "group": "navigation"
         }
       ]
     },
     "commands": [
       {
         "command": "vscode-time-keeper.startTask",
-        "title": "TimeKeeper: Start a Task"
+        "title": "Time Keeper: Start a Task",
+        "icon": "$(add)"
       },
       {
         "command": "vscode-time-keeper.stopTask",
-        "title": "TimeKeeper: Stop Current Task"
+        "title": "Time Keeper: Stop Current Task",
+        "icon": "$(debug-stop)"
       },
       {
         "command": "vscode-time-keeper.generateWeeklyReport",
-        "title": "TimeKeeper: Generate Weekly Report"
+        "title": "Time Keeper: Generate Weekly Report",
+        "icon": "$(file-text)"
       },
       {
         "command": "vscode-time-keeper.editTimeLog",
-        "title": "TimeKeeper: Edit Time Log"
+        "title": "Time Keeper: Edit Time Log",
+        "icon": "$(pencil)"
       }
     ],
     "configurationDefaults": {

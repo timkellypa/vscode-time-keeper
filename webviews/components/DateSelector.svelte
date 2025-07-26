@@ -128,9 +128,9 @@
 <svelte:head>
   <style>
     div.selected-year-month {
-      font-size: 1.2em;
+      font-size: 1.1em;
       font-weight: bold;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
       text-align: center;
     }
 
@@ -138,7 +138,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
       flex-direction: row;
       width: 100%;
       justify-content: space-between;
@@ -147,7 +147,7 @@
     .arrow-left,
     .arrow-right {
       cursor: pointer;
-      font-size: 1.5em;
+      font-size: 1.2em;
       padding: 0 10px;
     }
 
@@ -156,7 +156,7 @@
     }
 
     .selected-date {
-      font-size: 1.5em;
+      font-size: 1.2em;
     }
 
     .weekday {

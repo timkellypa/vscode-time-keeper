@@ -195,10 +195,9 @@ class TaskTimer {
     }
 
     if (dateString != null && dateString !== '') {
-      const timelogFile = TimeLogFile.fromDateString(this.rootFilePath, dateString)
-      if (timelogFile == null) {
-        void vscode.window.showErrorMessage(`File could not be opened! File does not exist or selection is not a proper date string: ${dateString}`)
-        return
+      const timelogFile = new TimeLogFile(this.rootFilePath, dateFromIsoString(dateString))
+      if (!timelogFile.exists()) {
+        timelogFile.write('')
       }
       void vscode.window.showTextDocument(timelogFile.getUri())
     }

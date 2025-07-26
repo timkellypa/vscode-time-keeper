@@ -74,11 +74,18 @@ class ReportInfo {
     const dailyTotals: number[] = new Array(7).fill(0)
     let overallTotal = 0
 
+    const projectTotals: Record<string, number[]> = {}
+
     const contentRows = Object.keys(weeklyData).sort().map((key) => {
       let rowTotal = 0
       const row = weeklyData[key]
 
+      const projectName = key.split('~')[0]
       let rowData = key.replace('~', ' - ')
+
+      if (projectTotals[projectName] == null) {
+        projectTotals[projectName] = new Array(8).fill(0) as number[]
+      }
 
       for (let i = 0; i < 7; ++i) {
         const currentValue = row[i]
@@ -88,6 +95,10 @@ class ReportInfo {
         rowTotal += currentValue
         overallTotal += currentValue
         dailyTotals[i] += currentValue
+
+        const projectTotalsForProject = projectTotals[projectName]
+        projectTotalsForProject[i] += currentValue
+        projectTotalsForProject[7] += currentValue
       }
       rowData += `,${formatDuration(rowTotal)}`
 
@@ -96,7 +107,16 @@ class ReportInfo {
 
     const totalRow = `TOTAL,${dailyTotals.map((total) => formatDuration(total)).join(',')},${formatDuration(overallTotal)}`
 
-    return `${headerRow}\n${contentRows}\n${totalRow}`
+    const projectTotalHeaderRow = 'PROJECT TOTALS,,,,,,,,'
+
+    let projectTotalRows = ''
+    for (const projectName of Object.keys(projectTotals).sort()) {
+      const projectTotal = projectTotals[projectName]
+      const projectTotalRow = `${projectName},${projectTotal.map((total) => formatDuration(total)).join(',')}`
+      projectTotalRows += `${projectTotalRows.length === 0 ? '' : '\n'}${projectTotalRow}`
+    }
+
+    return `${headerRow}\n${contentRows}\n\n${projectTotalHeaderRow}\n${projectTotalRows}\n\n${totalRow}`
   }
 }
 
