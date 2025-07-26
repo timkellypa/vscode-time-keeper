@@ -50,6 +50,11 @@ export class SidebarMainProvider implements vscode.WebviewViewProvider {
           await timer.startTask(this._state.calendarDate ?? new Date())
           break
         }
+        case 'stopTask': {
+          const timer = new TaskTimer(this._state.rootFilePath)
+          await timer.stopTask(true, this._state.calendarDate ?? new Date())
+          break
+        }
       }
     })
   }
