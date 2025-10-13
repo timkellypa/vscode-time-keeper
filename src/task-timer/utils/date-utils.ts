@@ -120,6 +120,11 @@ export function getDay1 (dt: Date): Date {
   return returnDate
 }
 
+export function getDayIndex (dt: Date): number {
+  const day1 = getDay1(dt)
+  return (dt.getTime() - day1.getTime()) / (1000 * 60 * 60 * 24)
+}
+
 /**
  * Get the last day of the week.
  * @returns the last day of the week

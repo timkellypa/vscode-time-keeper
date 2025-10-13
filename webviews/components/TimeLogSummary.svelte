@@ -3,48 +3,59 @@
 
   type SummaryItem = {
     projectName: string;
-    totalTime: number;
+    dailyTime: number;
+    weeklyTime: number;
   };
 
-  let pageContents: string | null = $state(null);
+  /**
+   * Duplicate of interface in report-info.ts, redefined here for type checking
+   * without a cross-section import (which causes build issues).
+   */
+  interface WeeklyData {
+    totals: Record<string, number[]>;
+    projectTotals: Record<string, number[]>;
+    grandTotals: number[];
+    dateContents: string[];
+    openDays: boolean[];
+    currentDayIndex: number;
+  }
+
   let projectSummaryTable = $state<SummaryItem[]>([]);
 
   onMount(() => {
     // Listen for messages from the webview
     window.addEventListener("message", (event: MessageEvent) => {
-      if (event.data.command === "updateDailyContents") {
-        pageContents = event.data.contents ?? "";
-        updateProjectSummary();
+      if (event.data.command === "updateWeeklyData") {
+        const weeklyData = event.data.weeklyData;
+        updateProjectSummary(weeklyData);
       }
     });
   });
 
-  function updateProjectSummary() {
-    const returnTable = [] as SummaryItem[];
-    // reverse lookup of project name to array index in output
-    const projectMap = new Map<string, number>();
-    for (const row of pageContents ? pageContents.split("\n") : []) {
-      const projectName = row.split("\t")[0] || "";
-      let index = projectMap.get(projectName);
-      if (index === undefined) {
-        index = returnTable.length;
-        projectMap.set(projectName, index);
-        returnTable.push({ projectName, totalTime: 0 });
-      }
+  function updateProjectSummary(weeklyData: WeeklyData) {
+    const projectTotals = weeklyData.projectTotals;
+    const currentDayIndex = weeklyData.currentDayIndex;
+    const summary: SummaryItem[] = [];
 
-      const timeRange = row.split("\t")[2] || "";
-      const timeParts = timeRange.split("-");
-      if (timeParts.length === 2) {
-        const startTime = new Date(`1970-01-01T${timeParts[0].trim()}:00`);
-        const endTime = new Date(`1970-01-01T${timeParts[1].trim()}:00`);
-        const duration = (endTime.getTime() - startTime.getTime()) / 1000 / 60; // duration in minutes
-        returnTable[index].totalTime += duration;
-      }
+    for (const [projectName, times] of Object.entries(projectTotals)) {
+      summary.push({
+        projectName,
+        dailyTime: times[currentDayIndex],
+        weeklyTime: times[7],
+      });
     }
 
-    projectSummaryTable = returnTable.sort((a, b) =>
-      a.projectName.localeCompare(b.projectName),
-    );
+    // Sort by weeklyTime descending
+    summary.sort((a, b) => b.weeklyTime - a.weeklyTime);
+
+    // add a row for grand total
+    summary.push({
+      projectName: "TOTAL",
+      dailyTime: weeklyData.grandTotals[currentDayIndex],
+      weeklyTime: weeklyData.grandTotals[7],
+    });
+
+    projectSummaryTable = summary;
   }
 </script>
 
@@ -53,7 +64,10 @@
     <div class="time-log-summary-item">
       <div class="project-name">{summaryRow.projectName}</div>
       <div class="total-time">
-        {Math.round((summaryRow.totalTime / 60.0) * 100) / 100}
+        {Math.round((summaryRow.dailyTime / 60.0) * 100) / 100}
+        <span class="weekly-total"
+          >/ {Math.round((summaryRow.weeklyTime / 60.0) * 100) / 100} wk</span
+        >
       </div>
     </div>
   {/each}
@@ -82,6 +96,12 @@
       font-weight: bold;
       flex: 0 0 100px;
       text-align: right;
+    }
+    .weekly-total {
+      color: var(--vscode-foreground);
+      opacity: 0.7;
+      font-weight: normal;
+      margin-left: 5px;
     }
   </style>
 </svelte:head>

@@ -5,7 +5,7 @@
   "repository": {
     "url": "https://github.com/timkellypa/vscode-time-keeper"
   },
-  "version": "1.0.5",
+  "version": "1.0.6",
   "engines": {
     "vscode": "^1.86.0"
   },
@@ -50,7 +50,7 @@
           "id": "time-keeper-summary",
           "name": "Project Totals",
           "icon": "$(calendar)",
-          "contextualTitle": "Project Totals"
+          "contextualTitle": "Project Totals (day/week)"
         }
       ]
     },

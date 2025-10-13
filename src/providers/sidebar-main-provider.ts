@@ -14,10 +14,10 @@ export class SidebarMainProvider implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView
 
   constructor (private readonly _extensionUri: vscode.Uri, private readonly _state: SidebarState) {
-    this._state.onDailyContentsChange((contents) => {
+    this._state.onWeeklyDataChange((weeklyData) => {
       this._view?.webview.postMessage({
-        command: 'updateDailyContents',
-        contents: contents ?? ''
+        command: 'updateWeeklyData',
+        weeklyData
       })
     })
   }

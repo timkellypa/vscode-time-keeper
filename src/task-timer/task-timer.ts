@@ -4,6 +4,8 @@ import { dateFromIsoString, formatDate, getClosestIntervalToCurrentTime, getTime
 import { settings } from './settings'
 import TimeLogFile from './file/timelog-file'
 import ReportFile from './file/report-file'
+import ReportInfo from './classes/report-info'
+import type { WeeklyData } from './classes/report-info'
 
 const statusMessageTimeout = 3000
 
@@ -164,16 +166,18 @@ class TaskTimer {
     void vscode.env.openExternal(file.getUri())
   }
 
-  async getDateContents (dateString: string): Promise<string | null> {
-    const timeLogFile = TimeLogFile.fromDateString(this.rootFilePath, dateString)
-    if (timeLogFile == null) {
-      return null
-    }
-    const contents = timeLogFile.getContents()
-    if (contents == null) {
-      return null
-    }
-    return contents
+  /**
+   * Get entire contents of weekly data for a given date string.
+   * These can be parsed by the individual SideBar views as needed
+   * for reporting and summaries.
+   * @param dateString ISO date string in the format YYYY-MM-DD
+   * @returns {WeeklyData} data structure with all the weekly data for the week containing the date.
+   */
+  async getWeeklyData (dateString: string): Promise<WeeklyData> {
+    const dt = dateFromIsoString(dateString)
+    const reportInfo = new ReportInfo(this.rootFilePath, dt)
+    const value = reportInfo.getWeeklyData(dt)
+    return value
   }
 
   async editTimeLog (date?: Date): Promise<void> {

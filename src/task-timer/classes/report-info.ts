@@ -1,5 +1,14 @@
-import { formatDate, formatDuration, getDay1, getMinutesForTime } from '../utils/date-utils'
+import { formatDate, formatDuration, getDay1, getMinutesForTime, getDayIndex } from '../utils/date-utils'
 import TimeLogFile from '../file/timelog-file'
+
+export interface WeeklyData {
+  totals: Record<string, number[]>
+  projectTotals: Record<string, number[]>
+  grandTotals: number[]
+  dateContents: string[]
+  openDays: boolean[]
+  currentDayIndex: number
+}
 
 class ReportInfo {
   rootFilePath: string
@@ -9,10 +18,15 @@ class ReportInfo {
     this.date = new Date(date)
   }
 
-  _collateWeeklyData (): Record<string, number[]> {
+  getWeeklyData (date: Date): WeeklyData {
     // start us out on Monday
-    const dt = getDay1(this.date)
+    const dt = getDay1(date)
+    const currentDayIndex = getDayIndex(date)
     const totals: Record<string, number[]> = {}
+    const projectTotals: Record<string, number[]> = {}
+    const grandTotals: number[] = new Array(8).fill(0)
+    const dateContents: string[] = new Array(7).fill('')
+    const openDays: boolean[] = new Array(7).fill(false)
 
     for (let i = 0; i < 7; ++i) {
       const file = new TimeLogFile(this.rootFilePath, dt)
@@ -23,6 +37,8 @@ class ReportInfo {
         dt.setDate(dt.getDate() + 1)
         continue
       }
+
+      dateContents[i] = fileContents
 
       const lines = fileContents.split('\n')
 
@@ -39,29 +55,39 @@ class ReportInfo {
         const timeParts = lineParts[2].split(' - ')
 
         if (timeParts.length < 2 || timeParts[1] === '') {
+          openDays[i] = true
           return
         }
         const key = `${project}~${task}`
         if (totals[key] == null) {
-          totals[key] = new Array(7).fill(0)
+          totals[key] = new Array(8).fill(0)
         }
 
         const startTimeMinutes = getMinutesForTime(timeParts[0])
         const endTimeMinutes = getMinutesForTime(timeParts[1])
+        const duration = endTimeMinutes - startTimeMinutes
 
-        totals[key][i] += endTimeMinutes - startTimeMinutes
+        if (projectTotals[project] == null) {
+          projectTotals[project] = new Array(8).fill(0)
+        }
+        projectTotals[project][i] += duration
+        totals[key][i] += duration
+        grandTotals[i] += duration
+
+        projectTotals[project][7] += duration
+        totals[key][7] += duration
+        grandTotals[7] += duration
       })
 
       dt.setDate(dt.getDate() + 1)
     }
 
-    return totals
+    return { totals, projectTotals, grandTotals, dateContents, openDays, currentDayIndex }
   }
 
   toCSV (): string {
-    const weeklyData = this._collateWeeklyData()
-
     const dt = getDay1(this.date)
+    const { projectTotals, grandTotals, totals } = this.getWeeklyData(dt)
 
     let headerRow = ''
 
@@ -71,50 +97,27 @@ class ReportInfo {
     }
     headerRow += ',TOTAL'
 
-    const dailyTotals: number[] = new Array(7).fill(0)
-    let overallTotal = 0
+    const contentRows = Object.keys(totals).sort().map((key) => {
+      const row = totals[key]
 
-    const projectTotals: Record<string, number[]> = {}
-
-    const contentRows = Object.keys(weeklyData).sort().map((key) => {
-      let rowTotal = 0
-      const row = weeklyData[key]
-
-      const projectName = key.split('~')[0]
       let rowData = key.replace('~', ' - ')
-
-      if (projectTotals[projectName] == null) {
-        projectTotals[projectName] = new Array(8).fill(0) as number[]
-      }
 
       for (let i = 0; i < 7; ++i) {
         const currentValue = row[i]
         rowData += `,${formatDuration(currentValue)}`
-
-        // track all totals
-        rowTotal += currentValue
-        overallTotal += currentValue
-        dailyTotals[i] += currentValue
-
-        const projectTotalsForProject = projectTotals[projectName]
-        projectTotalsForProject[i] += currentValue
-        projectTotalsForProject[7] += currentValue
       }
-      rowData += `,${formatDuration(rowTotal)}`
-
+      rowData += `,${formatDuration(row[7])}`
       return rowData
     }).join('\n')
 
-    const totalRow = `TOTAL,${dailyTotals.map((total) => formatDuration(total)).join(',')},${formatDuration(overallTotal)}`
-
     const projectTotalHeaderRow = 'PROJECT TOTALS,,,,,,,,'
 
-    let projectTotalRows = ''
-    for (const projectName of Object.keys(projectTotals).sort()) {
+    const projectTotalRows = Object.keys(projectTotals).sort().map((projectName) => {
       const projectTotal = projectTotals[projectName]
-      const projectTotalRow = `${projectName},${projectTotal.map((total) => formatDuration(total)).join(',')}`
-      projectTotalRows += `${projectTotalRows.length === 0 ? '' : '\n'}${projectTotalRow}`
-    }
+      return `${projectName},${projectTotal.map((total) => formatDuration(total)).join(',')}`
+    }).join('\n')
+
+    const totalRow = `TOTAL,${grandTotals.map((total) => formatDuration(total)).join(',')}`
 
     return `${headerRow}\n${contentRows}\n\n${projectTotalHeaderRow}\n${projectTotalRows}\n\n${totalRow}`
   }

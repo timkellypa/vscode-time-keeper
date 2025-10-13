@@ -1,74 +1,165 @@
 {
-  "01. Project 1~Development": [
-    255,
-    360,
+  "totals": {
+    "01. Project 1~Development": [
+      255,
+      360,
+      0,
+      0,
+      255,
+      0,
+      0,
+      870
+    ],
+    "04. Project 4~Testing": [
+      135,
+      0,
+      0,
+      0,
+      135,
+      0,
+      0,
+      270
+    ],
+    "02. Project 2~Meetings": [
+      105,
+      0,
+      0,
+      0,
+      105,
+      0,
+      0,
+      210
+    ],
+    "01. Project 1~Testing": [
+      30,
+      0,
+      0,
+      360,
+      30,
+      0,
+      0,
+      420
+    ],
+    "04. Project 2~Meetings": [
+      0,
+      180,
+      0,
+      0,
+      0,
+      0,
+      0,
+      180
+    ],
+    "01. Project 1~Meetings": [
+      0,
+      0,
+      360,
+      0,
+      0,
+      0,
+      0,
+      360
+    ],
+    "04. Project 2~Development": [
+      0,
+      0,
+      180,
+      0,
+      0,
+      0,
+      0,
+      180
+    ],
+    "04. Project 1~Testing": [
+      0,
+      0,
+      0,
+      180,
+      0,
+      0,
+      0,
+      180
+    ]
+  },
+  "projectTotals": {
+    "01. Project 1": [
+      285,
+      360,
+      360,
+      360,
+      285,
+      0,
+      0,
+      1650
+    ],
+    "04. Project 4": [
+      135,
+      0,
+      0,
+      0,
+      135,
+      0,
+      0,
+      270
+    ],
+    "02. Project 2": [
+      105,
+      0,
+      0,
+      0,
+      105,
+      0,
+      0,
+      210
+    ],
+    "04. Project 2": [
+      0,
+      180,
+      180,
+      0,
+      0,
+      0,
+      0,
+      360
+    ],
+    "04. Project 1": [
+      0,
+      0,
+      0,
+      180,
+      0,
+      0,
+      0,
+      180
+    ]
+  },
+  "grandTotals": [
+    525,
+    540,
+    540,
+    540,
+    525,
     0,
     0,
-    255,
-    0,
-    0
+    2670
   ],
-  "04. Project 4~Testing": [
-    135,
-    0,
-    0,
-    0,
-    135,
-    0,
-    0
+  "dateContents": [
+    "01. Project 1\tDevelopment\t08:00 - 10:30\n04. Project 4\tTesting\t10:30 - 12:45\n02. Project 2\tMeetings\t13:30 - 14:15\n01. Project 1\tDevelopment\t14:15 - 16:00\n01. Project 1\tTesting\t16:00 - 16:30\n02. Project 2\tMeetings\t16:30 - 17:30\n05. Exclude two tabs\ttest\n06. Exclude no end time\ttest\t17:30 -",
+    "01. Project 1\tDevelopment\t08:00 - 14:00\n04. Project 2\tMeetings\t14:00 - 17:00",
+    "01. Project 1\tMeetings\t08:00 - 14:00\n04. Project 2\tDevelopment\t14:00 - 17:00",
+    "01. Project 1\tTesting (defect 15)\t08:00 - 14:00\n04. Project 1\tTesting (defect 16)\t14:00 - 17:00",
+    "01. Project 1\tDevelopment\t08:00 - 10:30\n04. Project 4\tTesting\t10:30 - 12:45\n02. Project 2\tMeetings\t13:30 - 14:15\n01. Project 1\tDevelopment\t14:15 - 16:00\n01. Project 1\tTesting\t16:00 - 16:30\n02. Project 2\tMeetings\t16:30 - 17:30",
+    "",
+    ""
   ],
-  "02. Project 2~Meetings": [
-    105,
-    0,
-    0,
-    0,
-    105,
-    0,
-    0
+  "openDays": [
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
   ],
-  "01. Project 1~Testing": [
-    30,
-    0,
-    0,
-    360,
-    30,
-    0,
-    0
-  ],
-  "04. Project 2~Meetings": [
-    0,
-    180,
-    0,
-    0,
-    0,
-    0,
-    0
-  ],
-  "01. Project 1~Meetings": [
-    0,
-    0,
-    360,
-    0,
-    0,
-    0,
-    0
-  ],
-  "04. Project 2~Development": [
-    0,
-    0,
-    180,
-    0,
-    0,
-    0,
-    0
-  ],
-  "04. Project 1~Testing": [
-    0,
-    0,
-    0,
-    180,
-    0,
-    0,
-    0
-  ]
+  "currentDayIndex": 2
 }

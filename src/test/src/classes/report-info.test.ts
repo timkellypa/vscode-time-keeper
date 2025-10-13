@@ -38,9 +38,9 @@ suite('ReportInfo', () => {
     reportInfo = new ReportInfo(tmpDataCache.path, new Date(2024, 2, 13))
   })
 
-  suite('_collateWeeklyData', () => {
+  suite('getWeeklyData', () => {
     test('it produces expected output', () => {
-      const results = reportInfo._collateWeeklyData()
+      const results = reportInfo.getWeeklyData(new Date(2024, 2, 13))
 
       assert.deepEqual(JSON.parse(JSON.stringify(results)), JSON.parse(JSON.stringify(expectedReportData)))
     })

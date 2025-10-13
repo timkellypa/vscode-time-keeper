@@ -4,9 +4,8 @@
   import DateSelector from "./DateSelector.svelte";
   import TimeLogList from "./TimeLogList.svelte";
 
-  let pageContents: string | null = $state(null);
   let hasOpenValue = $state(false);
-
+  let pageContents: string | null = $state(null);
   function dateChanged(date: Date = new Date()) {
     const calendarDate = new Date(date);
 
@@ -25,9 +24,14 @@
   onMount(() => {
     // Listen for messages from the webview
     window.addEventListener("message", (event: MessageEvent) => {
-      if (event.data.command === "updateDailyContents") {
-        pageContents = event.data.contents ?? "";
-        hasOpenValue = pageContents ? pageContents.trim().endsWith("-") : false;
+      if (event.data.command === "updateWeeklyData") {
+        const weeklyData = event.data.weeklyData;
+        hasOpenValue = weeklyData?.openDays
+          ? weeklyData.openDays[weeklyData.currentDayIndex]
+          : false;
+        pageContents = weeklyData?.dateContents
+          ? weeklyData.dateContents[weeklyData.currentDayIndex]
+          : "";
       }
     });
   });

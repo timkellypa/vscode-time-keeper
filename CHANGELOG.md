@@ -46,3 +46,10 @@ All notable changes to the "vscode-time-keeper" extension will be documented in 
 - Generate report changes.
    - Fix defect with day 1/day 7, when done on Sunday.
    - Include new section in report for project totals.
+
+## 1.0.6
+
+- More sidebar enhancements (improve project summaries).
+    - Refactor sidebars to accept a more complex state object.
+    - Refactor calculations/parsing for values to only occur in report-info (no more duplicate parsing/calculations).
+    - Use full state to include weekly totals and grand totals in summary section.
