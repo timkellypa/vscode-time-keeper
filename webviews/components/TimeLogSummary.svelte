@@ -45,8 +45,8 @@
       });
     }
 
-    // Sort by weeklyTime descending
-    summary.sort((a, b) => b.weeklyTime - a.weeklyTime);
+    // Sort by project name
+    summary.sort((a, b) => a.projectName.localeCompare(b.projectName));
 
     // add a row for grand total
     summary.push({

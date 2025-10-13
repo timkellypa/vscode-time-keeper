@@ -53,3 +53,9 @@ All notable changes to the "vscode-time-keeper" extension will be documented in 
     - Refactor sidebars to accept a more complex state object.
     - Refactor calculations/parsing for values to only occur in report-info (no more duplicate parsing/calculations).
     - Use full state to include weekly totals and grand totals in summary section.
+
+## 1.0.7
+
+- Fix project summary sorting.
+    - Was sorting by totals, descending, which looked strange.
+    - Sort by project name instead.
