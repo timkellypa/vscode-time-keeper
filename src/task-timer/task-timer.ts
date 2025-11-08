@@ -60,7 +60,7 @@ class TaskTimer {
     if (settings.canAddNotes) {
       // Query file for notes from other tasks with this project and task name.
       // Reverse so most recent notes appear first.
-      const existingNotes = ['', ...file.getNotesForTask(project, taskName).reverse()];
+      const existingNotes = ['', ...file.getNotesForTask(project, taskName).reverse()]
 
       // Allow user to escape or unfocus here and still enter time.
       // But only add notes if user actually enters them.

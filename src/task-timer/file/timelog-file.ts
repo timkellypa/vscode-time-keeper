@@ -110,7 +110,6 @@ class TimeLogFile extends BaseFile {
     })
     return timeLogFiles
   }
-
 }
 
 export default TimeLogFile
