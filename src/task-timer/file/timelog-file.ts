@@ -23,6 +23,36 @@ class TimeLogFile extends BaseFile {
     return fileContents.trim().endsWith('-')
   }
 
+  getNotesForTask (projectName: string, taskName: string): string[] {
+    const notesSet: Set<string> = new Set<string>()
+    const contents = this.getContents()
+    if (contents == null) {
+      return []
+    }
+
+    const lines = contents.split('\n')
+
+    lines.forEach((line) => {
+      const lineParts = line.split('\t')
+
+      if (lineParts.length < 3) {
+        return
+      }
+
+      const lineProject = lineParts[0]
+      const lineTask = lineParts[1].replace(/\s*\(.*\)/, '')
+
+      if (lineProject === projectName && lineTask === taskName) {
+        const noteMatch = line.match(/\((.*)\)/)
+        if (noteMatch != null && noteMatch.length > 1) {
+          notesSet.add(noteMatch[1])
+        }
+      }
+    })
+
+    return Array.from(notesSet)
+  }
+
   static fromDateString (rootFilePath: string, dateString: string): TimeLogFile | null {
     const dateParts = dateString.split('-')
 
@@ -80,6 +110,7 @@ class TimeLogFile extends BaseFile {
     })
     return timeLogFiles
   }
+
 }
 
 export default TimeLogFile

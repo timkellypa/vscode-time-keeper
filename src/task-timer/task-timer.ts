@@ -58,9 +58,13 @@ class TaskTimer {
 
     let fullTask = taskName
     if (settings.canAddNotes) {
+      // Query file for notes from other tasks with this project and task name.
+      // Reverse so most recent notes appear first.
+      const existingNotes = ['', ...file.getNotesForTask(project, taskName).reverse()];
+
       // Allow user to escape or unfocus here and still enter time.
       // But only add notes if user actually enters them.
-      const additionalNotes = await vscode.window.showInputBox({ placeHolder: 'Notes', ignoreFocusOut: true })
+      const additionalNotes = await InputUtils.getUserValueWithSuggestions(existingNotes, 'Notes', true)
 
       if (additionalNotes != null && additionalNotes !== '') {
         fullTask = `${fullTask} (${additionalNotes})`

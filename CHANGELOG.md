@@ -59,3 +59,8 @@ All notable changes to the "vscode-time-keeper" extension will be documented in 
 - Fix project summary sorting.
     - Was sorting by totals, descending, which looked strange.
     - Sort by project name instead.
+
+## 1.0.8
+
+- Add notes suggestions for tasks, based on previous notes for current day.
+    - Should save copy/pasting for tasks that are repeated throughout the day.
