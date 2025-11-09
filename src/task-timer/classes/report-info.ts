@@ -3,6 +3,7 @@ import TimeLogFile from '../file/timelog-file'
 
 export interface WeeklyData {
   totals: Record<string, number[]>
+  notes: Record<string, string[]>
   projectTotals: Record<string, number[]>
   grandTotals: number[]
   dateContents: string[]
@@ -23,6 +24,7 @@ class ReportInfo {
     const dt = getDay1(date)
     const currentDayIndex = getDayIndex(date)
     const totals: Record<string, number[]> = {}
+    const notes: Record<string, string[]> = {}
     const projectTotals: Record<string, number[]> = {}
     const grandTotals: number[] = new Array(8).fill(0)
     const dateContents: string[] = new Array(7).fill('')
@@ -63,6 +65,17 @@ class ReportInfo {
           totals[key] = new Array(8).fill(0)
         }
 
+        if (notes[key] == null) {
+          notes[key] = []
+        }
+
+        if (lineParts[1].includes('(')) {
+          const noteMatch = lineParts[1].match(/\((.*)\)$/)
+          if (noteMatch != null && noteMatch.length > 1) {
+            notes[key].push(noteMatch[1])
+          }
+        }
+
         const startTimeMinutes = getMinutesForTime(timeParts[0])
         const endTimeMinutes = getMinutesForTime(timeParts[1])
         const duration = endTimeMinutes - startTimeMinutes
@@ -82,7 +95,7 @@ class ReportInfo {
       dt.setDate(dt.getDate() + 1)
     }
 
-    return { totals, projectTotals, grandTotals, dateContents, openDays, currentDayIndex }
+    return { totals, notes, projectTotals, grandTotals, dateContents, openDays, currentDayIndex }
   }
 
   toCSV (): string {
@@ -120,6 +133,20 @@ class ReportInfo {
     const totalRow = `TOTAL,${grandTotals.map((total) => formatDuration(total)).join(',')}`
 
     return `${headerRow}\n${contentRows}\n\n${projectTotalHeaderRow}\n${projectTotalRows}\n\n${totalRow}`
+  }
+
+  /**
+   * Get the notes for a given project and task name for the week of the report.
+   * @param projectName project name
+   * @param taskName task name
+   * @returns Array of notes for the given project and task name for the week of the report date.
+   * Note, this will contain duplicates of the same note, in case the caller
+   * needs positional information (like earliest or latest).
+   */
+  getNotesForTask (projectName: string, taskName: string): string[] {
+    const { notes } = this.getWeeklyData(this.date)
+    const key = `${projectName}~${taskName}`
+    return notes[key] ?? []
   }
 }
 

@@ -64,3 +64,9 @@ All notable changes to the "vscode-time-keeper" extension will be documented in 
 
 - Add notes suggestions for tasks, based on previous notes for current day.
     - Should save copy/pasting for tasks that are repeated throughout the day.
+
+## 1.0.9
+
+- Refactor logic for existing notes.
+    - Add notes to ReportInfo data, and use array for the week instead of just the day.
+    - Remove additional method written for gathering this info for the current day.

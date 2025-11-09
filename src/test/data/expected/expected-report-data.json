@@ -81,6 +81,20 @@
       180
     ]
   },
+  "notes": {
+    "01. Project 1~Development": [],
+    "01. Project 1~Meetings": [],
+    "01. Project 1~Testing": [
+      "defect 15"
+    ],
+    "02. Project 2~Meetings": [],
+    "04. Project 1~Testing": [
+      "defect 16"
+    ],
+    "04. Project 2~Development": [],
+    "04. Project 2~Meetings": [],
+    "04. Project 4~Testing": []
+  },
   "projectTotals": {
     "01. Project 1": [
       285,

@@ -24,6 +24,8 @@ class TaskTimer {
     const fileContents = file.getContents()
     let lastLine = ''
 
+    const reportInfo = new ReportInfo(this.rootFilePath, date)
+
     if (fileContents !== null) {
       const lines = fileContents.split('\n')
       lastLine = lines[lines.length - 1]
@@ -58,13 +60,16 @@ class TaskTimer {
 
     let fullTask = taskName
     if (settings.canAddNotes) {
-      // Query file for notes from other tasks with this project and task name.
-      // Reverse so most recent notes appear first.
-      const existingNotes = ['', ...file.getNotesForTask(project, taskName).reverse()]
+      // Get existing notes for this project and task from this week.
+      const existingNotes = reportInfo.getNotesForTask(project, taskName)
+
+      // Get unique notes only, but only keep the latest position of each duplicate, and reverse the set.
+      const uniqueNotes = Array.from(new Set(existingNotes.reverse()))
+      const suggestions = ['', ...uniqueNotes]
 
       // Allow user to escape or unfocus here and still enter time.
       // But only add notes if user actually enters them.
-      const additionalNotes = await InputUtils.getUserValueWithSuggestions(existingNotes, 'Notes', true)
+      const additionalNotes = await InputUtils.getUserValueWithSuggestions(suggestions, 'Notes', true)
 
       if (additionalNotes != null && additionalNotes !== '') {
         fullTask = `${fullTask} (${additionalNotes})`
