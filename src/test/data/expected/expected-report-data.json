@@ -167,13 +167,13 @@
     ""
   ],
   "openDays": [
-    true,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false
+    "17:30",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
   ],
   "currentDayIndex": 2
 }

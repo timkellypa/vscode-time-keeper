@@ -45,14 +45,17 @@ class TaskTimer {
       return
     }
 
-    const timeOptions = getTimeOptions('00:00', { currentTimeFirst: true, includeEmpty: false })
-    const startTime = await vscode.window.showQuickPick(timeOptions, { placeHolder: 'Start Time', title: lastLine, ignoreFocusOut: true })
+    // Only show current time first if we are editing today's date.
+    const currentTimeFirst = formatDate(date) === formatDate(new Date())
+    const startTimeOptions = getTimeOptions('00:00', { currentTimeFirst, includeEmpty: false })
+    const startTime = await vscode.window.showQuickPick(startTimeOptions, { placeHolder: 'Start Time', title: lastLine, ignoreFocusOut: true })
 
     if (startTime == null) {
       return
     }
 
-    const endTime = await vscode.window.showQuickPick(getTimeOptions(startTime, { currentTimeFirst: true, includeEmpty: true }), { placeHolder: 'End Time <blank if ongoing>', ignoreFocusOut: true })
+    const endTimeOptions = getTimeOptions(startTime, { currentTimeFirst: false, includeEmpty: true, includeStartTime: false })
+    const endTime = await vscode.window.showQuickPick(endTimeOptions, { placeHolder: 'End Time <blank if ongoing>', ignoreFocusOut: true })
 
     if (endTime == null) {
       return
@@ -86,53 +89,24 @@ class TaskTimer {
   }
 
   async stopTask (checkUserInput: boolean = true, date = new Date()): Promise<void> {
-    // check to see if a task is open.
-    let file = new TimeLogFile(this.rootFilePath, date)
-    let isYesterday = false
-    if (!file.exists()) {
-      const yesterday = new Date(date)
-      yesterday.setDate(yesterday.getDate() - 1)
-      file = new TimeLogFile(this.rootFilePath, yesterday)
-      isYesterday = true
-    }
-
-    let fileContents = file.getContents()
-
-    if (fileContents == null) {
-      return
-    }
-
-    if (!file.taskIsOpen()) {
-      return
-    }
-
-    if (isYesterday) {
-      // if yesterday is open, leave with 24:00
-      const newFileContents = `${fileContents}24:00`
-      file.write(newFileContents)
-
-      // create a row for today.
-      const yesterdayRows = newFileContents.split('\n')
-      const lastRowForYesterday = yesterdayRows[yesterdayRows.length - 1]
-      const lastRowParts = lastRowForYesterday.split('\t')
-      lastRowParts.splice(lastRowParts.length - 1, 1)
-      const lastRowWithoutTimes = lastRowParts.join('\t')
-
-      const todayOpenTaskRow = `${lastRowWithoutTimes}\t00:00 - `
-
-      file = new TimeLogFile(this.rootFilePath)
-      fileContents = todayOpenTaskRow
-      file.write(fileContents)
-    }
-
     const currentTime = getClosestIntervalToCurrentTime()
+    const reportInfo = new ReportInfo(this.rootFilePath, date)
+    const weeklyData = reportInfo.getWeeklyData(date)
+    const openStartTime = weeklyData.openDays[weeklyData.currentDayIndex]
 
+    const file = new TimeLogFile(this.rootFilePath, date)
+    const fileContents = file.getContents() ?? ''
+
+    if (openStartTime === '') {
+      // No open task for today.
+      return
+    }
+
+    const timeOptions = getTimeOptions(openStartTime, { currentTimeFirst: false, includeEmpty: false, includeStartTime: false })
+
+    // If this is an open day, it has to have contents.
     const lines = fileContents.split('\n')
     const lastLine = lines[lines.length - 1]
-    const lineParts = lastLine.split('\t')
-    const startTime = lineParts[lineParts.length - 1].replace(' -', '')
-
-    const timeOptions = getTimeOptions(startTime, { currentTimeFirst: true, includeEmpty: false })
 
     const endTime = !checkUserInput
       ? currentTime

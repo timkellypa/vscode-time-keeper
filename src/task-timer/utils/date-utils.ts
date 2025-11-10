@@ -144,7 +144,7 @@ export function getDay7 (dt: Date): Date {
  * @param options options containing currentTimeFirst and includeEmpty.
  * @returns an array of formatted time strings for a time selection.
  */
-export function getTimeOptions (minTime: string = '00:00', { currentTimeFirst = true, includeEmpty = false }): string[] {
+export function getTimeOptions (minTime: string = '00:00', { currentTimeFirst = true, includeEmpty = false, includeStartTime = true }): string[] {
   let times = []
 
   if (includeEmpty) {
@@ -153,7 +153,11 @@ export function getTimeOptions (minTime: string = '00:00', { currentTimeFirst = 
 
   for (let h = 0; h < 24; ++h) {
     for (let m = 0; m < 60; m += settings.interval) {
-      if (getMinutesForTime(minTime) <= h * 60 + m) {
+      const minTimeMinutes = getMinutesForTime(minTime)
+      const currentMinutes = h * 60 + m
+
+      if ((includeStartTime && minTimeMinutes === currentMinutes) ||
+        (minTimeMinutes < currentMinutes)) {
         times.push(`${padNumber(h, 2)}:${padNumber(m, 2)}`)
       }
     }

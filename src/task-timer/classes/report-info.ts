@@ -7,7 +7,9 @@ export interface WeeklyData {
   projectTotals: Record<string, number[]>
   grandTotals: number[]
   dateContents: string[]
-  openDays: boolean[]
+
+  // Store the open time for each day, blank if not open.
+  openDays: string[]
   currentDayIndex: number
 }
 
@@ -28,7 +30,7 @@ class ReportInfo {
     const projectTotals: Record<string, number[]> = {}
     const grandTotals: number[] = new Array(8).fill(0)
     const dateContents: string[] = new Array(7).fill('')
-    const openDays: boolean[] = new Array(7).fill(false)
+    const openDays: string[] = new Array(7).fill('')
 
     for (let i = 0; i < 7; ++i) {
       const file = new TimeLogFile(this.rootFilePath, dt)
@@ -57,7 +59,7 @@ class ReportInfo {
         const timeParts = lineParts[2].split(' - ')
 
         if (timeParts.length < 2 || timeParts[1] === '') {
-          openDays[i] = true
+          openDays[i] = timeParts[0]
           return
         }
         const key = `${project}~${task}`

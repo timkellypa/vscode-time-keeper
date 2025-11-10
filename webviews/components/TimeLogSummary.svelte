@@ -13,10 +13,13 @@
    */
   interface WeeklyData {
     totals: Record<string, number[]>;
+    notes: Record<string, string[]>;
     projectTotals: Record<string, number[]>;
     grandTotals: number[];
     dateContents: string[];
-    openDays: boolean[];
+
+    // Store the open time for each day, blank if not open.
+    openDays: string[];
     currentDayIndex: number;
   }
 

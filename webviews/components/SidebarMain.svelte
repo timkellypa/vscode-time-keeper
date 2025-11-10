@@ -27,7 +27,7 @@
       if (event.data.command === "updateWeeklyData") {
         const weeklyData = event.data.weeklyData;
         hasOpenValue = weeklyData?.openDays
-          ? weeklyData.openDays[weeklyData.currentDayIndex]
+          ? weeklyData.openDays[weeklyData.currentDayIndex] !== ""
           : false;
         pageContents = weeklyData?.dateContents
           ? weeklyData.dateContents[weeklyData.currentDayIndex]

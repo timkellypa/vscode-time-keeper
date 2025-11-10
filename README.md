@@ -102,6 +102,15 @@ Start/stop usability enhancements
     - Add notes to ReportInfo data, and use array for the week instead of just the day.
     - Remove additional method written for gathering this info for the current day.
 
+## 1.0.10
+
+- Refactor time logic
+    - Remove all "yesterday" logic from stop time, since we can select dates now.
+    - Do not use current time for stop time, ever.  Just start with the start time.
+    - Exclude the start time when doing the stop time.
+        - So if start is 09:30, the top option for end will be 09:45.
+    - When editing days that are not today, don't have the current time as the first option for start.
+
 ## Contributing
 
 Please feel free to fork this project and submit pull requests to the repository.
