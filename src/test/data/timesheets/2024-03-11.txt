@@ -5,4 +5,4 @@
 01. Project 1	Testing	16:00 - 16:30
 02. Project 2	Meetings	16:30 - 17:30
 05. Exclude two tabs	test
-06. Exclude no end time	test	17:30 -
+06. Exclude no end time	test	17:30 - 
